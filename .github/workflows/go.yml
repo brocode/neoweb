@@ -27,6 +27,6 @@ jobs:
     - name: Vet
       run: go vet -v ./...
 
-    - name: Vet
+    - name: Tidy
       run: go mod tidy -diff
 

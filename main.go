@@ -1,7 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"log/slog"
+	"os"
+
+	"github.com/brocode/neoweb/server"
+)
 
 func main() {
-    fmt.Println("hello")
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	slog.SetDefault(logger)
+
+	server.Run()
 }

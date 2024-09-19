@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/brocode/neoweb/components"
+	"github.com/brocode/neoweb/nvim"
 )
 
 func Run() {
@@ -13,7 +14,13 @@ func Run() {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		components.Hello("world").Render(r.Context(), w)
+		result, err := nvim.RunNvim()
+		if err != nil {
+			slog.Error("Nvim failed", "err", err)
+			http.Error(w, "Nvim failed", 500)
+			return
+		}
+		components.Hello(result).Render(r.Context(), w)
 	})
 
 	addr := ":8080"

@@ -1,5 +1,7 @@
 package components
 
-templ Hello(name string) {
-	<div>Hello, { name }</div>
+import "github.com/brocode/neoweb/nvim"
+
+templ Hello(nvimResult nvim.NvimResult) {
+    { nvimResult.VisibleText }
 }

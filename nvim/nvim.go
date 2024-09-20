@@ -1,7 +1,6 @@
 package nvim
 
 import (
-
 	"github.com/neovim/go-client/nvim"
 )
 

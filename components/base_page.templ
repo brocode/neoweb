@@ -1,11 +1,18 @@
 package components
 
+css page() {
+	background-color: #11111b;
+}
+
 templ BasePage() {
 	<html>
 		<head>
 			<title>Neoweb</title>
+			<link rel="preconnect" href="https://fonts.googleapis.com"/>
+			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+			<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet"/>
 		</head>
-		<body>
+		<body class={ page() }>
 			{ children... }
 		</body>
 	</html>

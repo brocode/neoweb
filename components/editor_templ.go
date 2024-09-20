@@ -12,7 +12,7 @@ import "github.com/brocode/neoweb/nvim"
 
 func editor() templ.CSSClass {
 	templ_7745c5c3_CSSBuilder := templruntime.GetBuilder()
-	templ_7745c5c3_CSSBuilder.WriteString(`font-family:monospace;`)
+	templ_7745c5c3_CSSBuilder.WriteString(`font-family:"Fira Code", monospace;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`font-size:17px;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`white-space:pre;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`background-color:#1e1e2e;`)

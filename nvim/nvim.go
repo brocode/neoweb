@@ -1,13 +1,12 @@
 package nvim
 
 import (
-	"strings"
 
 	"github.com/neovim/go-client/nvim"
 )
 
 type NvimResult struct {
-	VisibleText    string
+	Lines          []string
 	CursorPosition [2]int
 }
 
@@ -20,7 +19,7 @@ func RunNvim() (NvimResult, error) {
 	defer v.Close()
 
 	// Set UI dimensions (rows and columns)
-	err = v.AttachUI(80, 24, make(map[string]interface{}))
+	err = v.AttachUI(80, 40, make(map[string]interface{}))
 	if err != nil {
 		return NvimResult{}, err
 
@@ -84,7 +83,7 @@ func RunNvim() (NvimResult, error) {
 	}
 
 	return NvimResult{
-		VisibleText:    strings.Join(stringLines, "\n"),
+		Lines:          stringLines,
 		CursorPosition: pos,
 	}, nil
 

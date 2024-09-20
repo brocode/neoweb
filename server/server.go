@@ -20,7 +20,7 @@ func Run() {
 			http.Error(w, "Nvim failed", 500)
 			return
 		}
-		components.Hello(result).Render(r.Context(), w)
+		components.Main(result).Render(r.Context(), w)
 	})
 
 	addr := ":8080"

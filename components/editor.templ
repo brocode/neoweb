@@ -1,0 +1,22 @@
+package components
+
+import "github.com/brocode/neoweb/nvim"
+
+css editor() {
+	font-family: monospace;
+	font-size: 17px;
+	white-space: pre;
+	background-color: #1e1e2e;
+	color: #cdd6f4;
+	padding: 10px;
+	border-radius: 5px;
+	width: 80ch;
+}
+
+templ Editor(nvimResult nvim.NvimResult) {
+	<div class={ editor() }>
+		for _, line := range nvimResult.Lines {
+			<div>{ line }</div>
+		}
+	</div>
+}

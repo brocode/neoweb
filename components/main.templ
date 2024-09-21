@@ -1,6 +1,6 @@
 package components
 
-import "github.com/brocode/neoweb/nvim"
+import "github.com/brocode/neoweb/nvimwrapper"
 
 css editorWrapper() {
 	max-width: fit-content;
@@ -8,7 +8,7 @@ css editorWrapper() {
 	margin-right: auto;
 }
 
-templ Main(nvimResult nvim.NvimResult) {
+templ Main(nvimResult nvimwrapper.NvimResult) {
 	@BasePage() {
 		<div class={ editorWrapper() }>
 			@Editor(nvimResult)

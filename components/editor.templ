@@ -2,7 +2,7 @@ package components
 
 import (
 	"fmt"
-	"github.com/brocode/neoweb/nvim"
+	"github.com/brocode/neoweb/nvimwrapper"
 )
 
 css editor() {
@@ -12,8 +12,8 @@ css editor() {
 	color: var(--color-text);
 	padding: 10px;
 	border-radius: 5px;
-	width: { fmt.Sprintf("%vch", nvim.Cols) };
-	height: { fmt.Sprintf("%vem", nvim.Rows) };
+	width: { fmt.Sprintf("%vch", nvimwrapper.Cols) };
+	height: { fmt.Sprintf("%vem", nvimwrapper.Rows) };
 }
 
 css lineText() {
@@ -42,7 +42,7 @@ css statusLine() {
 	padding-right: 10px;
 }
 
-templ Editor(nvimResult nvim.NvimResult) {
+templ Editor(nvimResult nvimwrapper.NvimResult) {
 	<div class={ editor() }>
 		for _, line := range nvimResult.Lines {
 			<div id={ fmt.Sprintf("line-%v", line.Number) } class={ editorLine(), templ.KV(cursorLine(), line.Number == nvimResult.Row()) }>

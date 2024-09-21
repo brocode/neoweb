@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import (
 	"fmt"
-	"github.com/brocode/neoweb/nvim"
+	"github.com/brocode/neoweb/nvimwrapper"
 )
 
 func editor() templ.CSSClass {
@@ -21,8 +21,8 @@ func editor() templ.CSSClass {
 	templ_7745c5c3_CSSBuilder.WriteString(`color:var(--color-text);`)
 	templ_7745c5c3_CSSBuilder.WriteString(`padding:10px;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`border-radius:5px;`)
-	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`width`, fmt.Sprintf("%vch", nvim.Cols))))
-	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`height`, fmt.Sprintf("%vem", nvim.Rows))))
+	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`width`, fmt.Sprintf("%vch", nvimwrapper.Cols))))
+	templ_7745c5c3_CSSBuilder.WriteString(string(templ.SanitizeCSS(`height`, fmt.Sprintf("%vem", nvimwrapper.Rows))))
 	templ_7745c5c3_CSSID := templ.CSSID(`editor`, templ_7745c5c3_CSSBuilder.String())
 	return templ.ComponentCSSClass{
 		ID:    templ_7745c5c3_CSSID,
@@ -86,7 +86,7 @@ func statusLine() templ.CSSClass {
 	}
 }
 
-func Editor(nvimResult nvim.NvimResult) templ.Component {
+func Editor(nvimResult nvimwrapper.NvimResult) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

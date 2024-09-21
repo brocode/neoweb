@@ -1,7 +1,7 @@
 package components
 
 css page() {
-	background-color: #11111b;
+	background-color: var(--color-crust);
 }
 
 templ BasePage() {
@@ -11,6 +11,58 @@ templ BasePage() {
 			<link rel="preconnect" href="https://fonts.googleapis.com"/>
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 			<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet"/>
+			<style type="text/css">
+            :root {
+  --color-rosewater: #f5e0dc;
+  --color-flamingo: #f2cdcd;
+  --color-pink: #f5c2e7;
+  --color-mauve: #cba6f7;
+  --color-red: #f38ba8;
+  --color-maroon: #eba0ac;
+  --color-peach: #fab387;
+  --color-yellow: #f9e2af;
+  --color-green: #a6e3a1;
+  --color-teal: #94e2d5;
+  --color-sky: #89dceb;
+  --color-sapphire: #74c7ec;
+  --color-blue: #89b4fa;
+  --color-lavender: #b4befe;
+  --color-text: #cdd6f4;
+  --color-subtext1: #bac2de;
+  --color-subtext0: #a6adc8;
+  --color-overlay2: #9399b2;
+  --color-overlay1: #7f849c;
+  --color-overlay0: #6c7086;
+  --color-surface2: #585b70;
+  --color-surface1: #45475a;
+  --color-surface0: #313244;
+  --color-base: #1e1e2e;
+  --color-mantle: #181825;
+  --color-crust: #11111b;
+            }
+        .cursor {
+            position: absolute;
+            min-width: 1ch;
+            min-height: 100%;
+            top: 0;
+            background-color: var(--color-text);
+            mix-blend-mode: luminosity;
+            animation: blinkCursor 1.5s steps(2, start) infinite;
+        }
+
+        @keyframes blinkCursor {
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            50%,
+            100% {
+                opacity: 0;
+            }
+        }
+    </style>
 		</head>
 		<body class={ page() }>
 			{ children... }

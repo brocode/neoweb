@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 func page() templ.CSSClass {
 	templ_7745c5c3_CSSBuilder := templruntime.GetBuilder()
-	templ_7745c5c3_CSSBuilder.WriteString(`background-color:#11111b;`)
+	templ_7745c5c3_CSSBuilder.WriteString(`background-color:var(--color-crust);`)
 	templ_7745c5c3_CSSID := templ.CSSID(`page`, templ_7745c5c3_CSSBuilder.String())
 	return templ.ComponentCSSClass{
 		ID:    templ_7745c5c3_CSSID,
@@ -39,7 +39,7 @@ func BasePage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 1)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<html><head><title>Neoweb</title><link rel=\"preconnect\" href=\"https://fonts.googleapis.com\"><link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin><link href=\"https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&amp;display=swap\" rel=\"stylesheet\"><style type=\"text/css\">\n            :root {\n  --color-rosewater: #f5e0dc;\n  --color-flamingo: #f2cdcd;\n  --color-pink: #f5c2e7;\n  --color-mauve: #cba6f7;\n  --color-red: #f38ba8;\n  --color-maroon: #eba0ac;\n  --color-peach: #fab387;\n  --color-yellow: #f9e2af;\n  --color-green: #a6e3a1;\n  --color-teal: #94e2d5;\n  --color-sky: #89dceb;\n  --color-sapphire: #74c7ec;\n  --color-blue: #89b4fa;\n  --color-lavender: #b4befe;\n  --color-text: #cdd6f4;\n  --color-subtext1: #bac2de;\n  --color-subtext0: #a6adc8;\n  --color-overlay2: #9399b2;\n  --color-overlay1: #7f849c;\n  --color-overlay0: #6c7086;\n  --color-surface2: #585b70;\n  --color-surface1: #45475a;\n  --color-surface0: #313244;\n  --color-base: #1e1e2e;\n  --color-mantle: #181825;\n  --color-crust: #11111b;\n            }\n        .cursor {\n            position: absolute;\n            min-width: 1ch;\n            min-height: 100%;\n            top: 0;\n            background-color: var(--color-text);\n            mix-blend-mode: luminosity;\n            animation: blinkCursor 1.5s steps(2, start) infinite;\n        }\n\n        @keyframes blinkCursor {\n\n            0%,\n            50% {\n                opacity: 1;\n            }\n\n            50%,\n            100% {\n                opacity: 0;\n            }\n        }\n    </style></head>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -48,7 +48,7 @@ func BasePage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 2)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -61,7 +61,7 @@ func BasePage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 3)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -69,7 +69,7 @@ func BasePage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templ.WriteWatchModeString(templ_7745c5c3_Buffer, 4)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

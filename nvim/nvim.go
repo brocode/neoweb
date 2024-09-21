@@ -4,9 +4,22 @@ import (
 	"github.com/neovim/go-client/nvim"
 )
 
+const(
+    Rows = 40
+    Cols = 120
+)
+
 type NvimResult struct {
 	Lines          []string
 	CursorPosition [2]int
+}
+
+func (r NvimResult) Row() int {
+    return r.CursorPosition[0];
+}
+
+func (r NvimResult) Col() int {
+    return r.CursorPosition[1];
 }
 
 func RunNvim() (NvimResult, error) {
@@ -18,7 +31,7 @@ func RunNvim() (NvimResult, error) {
 	defer v.Close()
 
 	// Set UI dimensions (rows and columns)
-	err = v.AttachUI(80, 40, make(map[string]interface{}))
+	err = v.AttachUI(Cols, Rows, make(map[string]interface{}))
 	if err != nil {
 		return NvimResult{}, err
 
@@ -27,6 +40,14 @@ func RunNvim() (NvimResult, error) {
 
 	// Open a file
 	err = v.Command("edit main.go")
+	if err != nil {
+		return NvimResult{}, err
+
+	}
+
+    // Move cursor.
+    // just for now. this needs to come from the frontend
+    _, err = v.Input("ggjj$")
 	if err != nil {
 		return NvimResult{}, err
 

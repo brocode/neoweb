@@ -34,7 +34,10 @@ css cursorLine() {
 }
 
 css statusLine() {
-	color: var(--color-text);
+	background-color: var(--color-text);
+	color: var(--color-base);
+	border-radius: 5px;
+	margin-top: 5px;
 }
 
 templ Editor(nvimResult nvim.NvimResult) {
@@ -48,5 +51,5 @@ templ Editor(nvimResult nvim.NvimResult) {
 			</div>
 		}
 	</div>
-	<div class={ statusLine() }>{ fmt.Sprintf("%v",nvimResult.Row()) }:{ fmt.Sprintf("%v",nvimResult.Col()) }</div>
+	<div class={ statusLine() }>{ nvimResult.Status }</div>
 }

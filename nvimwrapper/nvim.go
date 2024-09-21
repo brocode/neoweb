@@ -1,4 +1,4 @@
-package nvim
+package nvimwrapper
 
 import (
 	"fmt"
@@ -13,9 +13,13 @@ const (
 )
 
 type NvimResult struct {
+	Status         string
 	Lines          []Line
 	CursorPosition [2]int
-	Status         string
+}
+
+type NvimWrapper struct {
+	v *nvim.Nvim
 }
 
 type Line struct {
@@ -31,62 +35,98 @@ func (r NvimResult) Col() int {
 	return r.CursorPosition[1]
 }
 
-func RunNvim() (NvimResult, error) {
+func Spawn() (*NvimWrapper, error) {
+
+	wrapper := NvimWrapper{}
+
 	// Start an embedded Neovim process
 	v, err := nvim.NewChildProcess(
 		nvim.ChildProcessArgs("--embed", "--clean"),
 	)
 	if err != nil {
-		return NvimResult{}, err
+		return nil, err
 	}
-	defer v.Close()
 
 	// Set UI dimensions (rows and columns)
 	err = v.AttachUI(Cols, Rows, make(map[string]interface{}))
 	if err != nil {
-		return NvimResult{}, err
+		return nil, err
 
 	}
-	defer v.DetachUI()
+	wrapper.v = v
+	return &wrapper, nil
+}
 
-	// Open a file
-	err = v.Command("edit main.go")
+func (w *NvimWrapper) Close() {
+	w.v.DetachUI()
+	w.v.Close()
+}
+
+func (w *NvimWrapper) OpenFile(file string) error {
+	return w.v.Command(fmt.Sprintf("edit %v", file))
+}
+
+func (w *NvimWrapper) Input(input string) error {
+	_, err := w.v.Input(input)
+	return err
+}
+
+func (w *NvimWrapper) Render() (NvimResult, error) {
+	status, err := w.getStatus()
 	if err != nil {
 		return NvimResult{}, err
-
 	}
 
-	// Move cursor.
-	// just for now. this needs to come from the frontend
-	_, err = v.Input("ggjj$")
+	cursorPosition, err := w.getCursorPos()
 	if err != nil {
 		return NvimResult{}, err
-
 	}
-
-	// Get the current buffer and window
-	buf, err := v.CurrentBuffer()
+	lines, err := w.getVisibleLines()
 	if err != nil {
 		return NvimResult{}, err
-
 	}
+
+	return NvimResult{
+		Lines:          lines,
+		CursorPosition: cursorPosition,
+		Status:         status,
+	}, nil
+}
+
+func (w *NvimWrapper) getCursorPos() ([2]int, error) {
+	v := w.v
+
 	win, err := v.CurrentWindow()
 	if err != nil {
-		return NvimResult{}, err
+		return [2]int{}, err
 
 	}
 
+	// Get cursor position
+	pos, err := v.WindowCursor(win)
+	if err != nil {
+		return [2]int{}, err
+	}
+	return pos, nil
+}
+func (w *NvimWrapper) getVisibleLines() ([]Line, error) {
+	v := w.v
+	buf, err := v.CurrentBuffer()
+	if err != nil {
+		return []Line{}, err
+
+	}
 	// Get the first and last visible lines
 	var firstLine int
 	err = v.Eval("line('w0')", &firstLine)
 	if err != nil {
-		return NvimResult{}, err
+		return []Line{}, err
 
 	}
 	var lastLine int
 	err = v.Eval("line('w$')", &lastLine)
 	if err != nil {
-		return NvimResult{}, err
+		return []Line{}, err
 
 	}
 
@@ -97,44 +137,27 @@ func RunNvim() (NvimResult, error) {
 	// Get visible lines
 	lines, err := v.BufferLines(buf, firstLineNum, lastLineNum, true)
 	if err != nil {
-		return NvimResult{}, err
+		return []Line{}, err
 
 	}
 
-	stringLines := make([]Line, 0, len(lines))
+	result := make([]Line, 0, len(lines))
 	for idx, line := range lines {
-		stringLines = append(stringLines, Line{
+		result = append(result, Line{
 			Text:   string(line),
 			Number: idx + firstLine,
 		})
 	}
-
-	// Get cursor position
-	pos, err := v.WindowCursor(win)
-	if err != nil {
-		return NvimResult{}, err
-	}
-	status, err := getStatus(v)
-	if err != nil {
-		return NvimResult{}, err
-	}
-
-	return NvimResult{
-		Lines:          stringLines,
-		CursorPosition: pos,
-		Status:         status,
-	}, nil
-
+	return result, nil
 }
 
-func getStatus(v *nvim.Nvim) (string, error) {
-	// Evaluate the statusline with default options
+func (w *NvimWrapper) getStatus() (string, error) {
+	v := w.v
 	result, err := v.EvalStatusLine("%{mode()} %f %h%m%r%=%-14.(%l,%c%V%) %P", map[string]interface{}{})
 	if err != nil {
 		return "", err
 	}
 
-	// Extract the "str" field from the result map
 	str, ok := result["str"].(string)
 	if !ok {
 		return "", fmt.Errorf("failed to get statusline string")

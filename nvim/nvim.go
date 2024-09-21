@@ -1,6 +1,9 @@
 package nvim
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/neovim/go-client/nvim"
 )
 
@@ -12,6 +15,7 @@ const (
 type NvimResult struct {
 	Lines          []Line
 	CursorPosition [2]int
+	Status         string
 }
 
 type Line struct {
@@ -29,7 +33,9 @@ func (r NvimResult) Col() int {
 
 func RunNvim() (NvimResult, error) {
 	// Start an embedded Neovim process
-	v, err := nvim.NewChildProcess(nvim.ChildProcessArgs("--embed"))
+	v, err := nvim.NewChildProcess(
+		nvim.ChildProcessArgs("--embed", "--clean"),
+	)
 	if err != nil {
 		return NvimResult{}, err
 	}
@@ -95,13 +101,6 @@ func RunNvim() (NvimResult, error) {
 
 	}
 
-	// Get cursor position
-	pos, err := v.WindowCursor(win)
-	if err != nil {
-		return NvimResult{}, err
-
-	}
-
 	stringLines := make([]Line, 0, len(lines))
 	for idx, line := range lines {
 		stringLines = append(stringLines, Line{
@@ -110,9 +109,36 @@ func RunNvim() (NvimResult, error) {
 		})
 	}
 
+	// Get cursor position
+	pos, err := v.WindowCursor(win)
+	if err != nil {
+		return NvimResult{}, err
+	}
+	status, err := getStatus(v)
+	if err != nil {
+		return NvimResult{}, err
+	}
+
 	return NvimResult{
 		Lines:          stringLines,
 		CursorPosition: pos,
+		Status:         status,
 	}, nil
 
+}
+
+func getStatus(v *nvim.Nvim) (string, error) {
+	// Evaluate the statusline with default options
+	result, err := v.EvalStatusLine("%{mode()} %f %h%m%r%=%-14.(%l,%c%V%) %P", map[string]interface{}{})
+	if err != nil {
+		return "", err
+	}
+
+	// Extract the "str" field from the result map
+	str, ok := result["str"].(string)
+	if !ok {
+		return "", fmt.Errorf("failed to get statusline string")
+	}
+
+	return strings.TrimSpace(str), nil
 }

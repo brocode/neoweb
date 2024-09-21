@@ -1,22 +1,37 @@
 package components
 
-import "github.com/brocode/neoweb/nvim"
+import (
+  "fmt"
+  "github.com/brocode/neoweb/nvim"
+  )
 
 css editor() {
-	font-family: "Fira Code", monospace;
+	font-family: "Fira Code";
 	font-size: 17px;
 	white-space: pre;
 	background-color: #1e1e2e;
 	color: #cdd6f4;
 	padding: 10px;
 	border-radius: 5px;
-	width: 80ch;
+	width: {fmt.Sprintf("%vch", nvim.Cols)};
+	height: {fmt.Sprintf("%vem", nvim.Rows)};
+}
+css editorLine() {
+    min-height: 1em;
+}
+
+css cursorLine() {
+    background-color: #313244;
+}
+css statusLine() {
+	color: #cdd6f4;
 }
 
 templ Editor(nvimResult nvim.NvimResult) {
 	<div class={ editor() }>
-		for _, line := range nvimResult.Lines {
-			<div>{ line }</div>
+		for lineNumber, line := range nvimResult.Lines {
+			<div id={fmt.Sprintf("line-%v", lineNumber)} class={editorLine(), templ.KV(cursorLine(), lineNumber + 1 == nvimResult.Row())}>{ line }</div>
 		}
 	</div>
+    <div class={statusLine()}>{ fmt.Sprintf("%v",nvimResult.Row()) }:{fmt.Sprintf("%v",nvimResult.Col()) }</div>
 }

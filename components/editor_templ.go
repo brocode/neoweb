@@ -73,7 +73,7 @@ func cursorLine() templ.CSSClass {
 
 func statusLine() templ.CSSClass {
 	templ_7745c5c3_CSSBuilder := templruntime.GetBuilder()
-	templ_7745c5c3_CSSBuilder.WriteString(`color:#cdd6f4;`)
+	templ_7745c5c3_CSSBuilder.WriteString(`color:var(--color-text);`)
 	templ_7745c5c3_CSSID := templ.CSSID(`statusLine`, templ_7745c5c3_CSSBuilder.String())
 	return templ.ComponentCSSClass{
 		ID:    templ_7745c5c3_CSSID,

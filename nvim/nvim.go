@@ -4,22 +4,27 @@ import (
 	"github.com/neovim/go-client/nvim"
 )
 
-const(
-    Rows = 40
-    Cols = 120
+const (
+	Rows = 40
+	Cols = 120
 )
 
 type NvimResult struct {
-	Lines          []string
+	Lines          []Line
 	CursorPosition [2]int
 }
 
+type Line struct {
+	Text   string
+	Number int
+}
+
 func (r NvimResult) Row() int {
-    return r.CursorPosition[0];
+	return r.CursorPosition[0]
 }
 
 func (r NvimResult) Col() int {
-    return r.CursorPosition[1];
+	return r.CursorPosition[1]
 }
 
 func RunNvim() (NvimResult, error) {
@@ -45,9 +50,9 @@ func RunNvim() (NvimResult, error) {
 
 	}
 
-    // Move cursor.
-    // just for now. this needs to come from the frontend
-    _, err = v.Input("ggjj$")
+	// Move cursor.
+	// just for now. this needs to come from the frontend
+	_, err = v.Input("ggjj$")
 	if err != nil {
 		return NvimResult{}, err
 
@@ -97,9 +102,12 @@ func RunNvim() (NvimResult, error) {
 
 	}
 
-	stringLines := make([]string, 0, len(lines))
-	for _, line := range lines {
-		stringLines = append(stringLines, string(line))
+	stringLines := make([]Line, 0, len(lines))
+	for idx, line := range lines {
+		stringLines = append(stringLines, Line{
+			Text:   string(line),
+			Number: idx + firstLine,
+		})
 	}
 
 	return NvimResult{

@@ -1,37 +1,52 @@
 package components
 
 import (
-  "fmt"
-  "github.com/brocode/neoweb/nvim"
-  )
+	"fmt"
+	"github.com/brocode/neoweb/nvim"
+)
 
 css editor() {
 	font-family: "Fira Code";
 	font-size: 17px;
-	white-space: pre;
-	background-color: #1e1e2e;
-	color: #cdd6f4;
+	background-color: var(--color-base);
+	color: var(--color-text);
 	padding: 10px;
 	border-radius: 5px;
-	width: {fmt.Sprintf("%vch", nvim.Cols)};
-	height: {fmt.Sprintf("%vem", nvim.Rows)};
+	width: { fmt.Sprintf("%vch", nvim.Cols) };
+	height: { fmt.Sprintf("%vem", nvim.Rows) };
 }
+
+css lineText() {
+	white-space: pre;
+}
+
+css cursorOffset(col int) {
+	left: { templ.SafeCSSProperty(fmt.Sprintf("calc(%v * 1ch)", col)) };
+}
+
 css editorLine() {
-    min-height: 1em;
+	min-height: 1em;
+	position: relative;
 }
 
 css cursorLine() {
-    background-color: #313244;
+	background-color: var(--color-surface0);
 }
+
 css statusLine() {
 	color: #cdd6f4;
 }
 
 templ Editor(nvimResult nvim.NvimResult) {
 	<div class={ editor() }>
-		for lineNumber, line := range nvimResult.Lines {
-			<div id={fmt.Sprintf("line-%v", lineNumber)} class={editorLine(), templ.KV(cursorLine(), lineNumber + 1 == nvimResult.Row())}>{ line }</div>
+		for _, line := range nvimResult.Lines {
+			<div id={ fmt.Sprintf("line-%v", line.Number) } class={ editorLine(), templ.KV(cursorLine(), line.Number == nvimResult.Row()) }>
+				<span class={ lineText() }>{ line.Text }</span>
+				if line.Number == nvimResult.Row() {
+					<div class={ "cursor", cursorOffset(nvimResult.Col()) }></div>
+				}
+			</div>
 		}
 	</div>
-    <div class={statusLine()}>{ fmt.Sprintf("%v",nvimResult.Row()) }:{fmt.Sprintf("%v",nvimResult.Col()) }</div>
+	<div class={ statusLine() }>{ fmt.Sprintf("%v",nvimResult.Row()) }:{ fmt.Sprintf("%v",nvimResult.Col()) }</div>
 }

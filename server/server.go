@@ -40,7 +40,10 @@ func Run() {
 			http.Error(w, "Nvim failed", 500)
 			return
 		}
-		components.Main(result).Render(r.Context(), w)
+		err = components.Main(result).Render(r.Context(), w)
+        if err != nil {
+            slog.Error("Failed to render response", "error",  err)
+        }
 	})
 
 	addr := ":8080"

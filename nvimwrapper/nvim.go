@@ -2,6 +2,7 @@ package nvimwrapper
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/neovim/go-client/nvim"
@@ -44,13 +45,13 @@ func Spawn() (*NvimWrapper, error) {
 		nvim.ChildProcessArgs("--embed", "--clean"),
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to start embedded neovim: %w", err)
 	}
 
 	// Set UI dimensions (rows and columns)
 	err = v.AttachUI(Cols, Rows, make(map[string]interface{}))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Failed to attach UI: %w", err)
 
 	}
 	wrapper.v = v
@@ -58,17 +59,30 @@ func Spawn() (*NvimWrapper, error) {
 }
 
 func (w *NvimWrapper) Close() {
-	w.v.DetachUI()
-	w.v.Close()
+	err := w.v.DetachUI()
+	if err != nil {
+		slog.Error("Failed to detach UI", "Error", err)
+	}
+	err = w.v.Close()
+	if err != nil {
+		slog.Error("Failed to close neovim", "Error", err)
+	}
 }
 
 func (w *NvimWrapper) OpenFile(file string) error {
-	return w.v.Command(fmt.Sprintf("edit %v", file))
+	err := w.v.Command(fmt.Sprintf("edit %v", file))
+	if err != nil {
+		return fmt.Errorf("Failed to open file in neovim: %w", err)
+	}
+	return nil
 }
 
 func (w *NvimWrapper) Input(input string) error {
 	_, err := w.v.Input(input)
-	return err
+	if err != nil {
+		return fmt.Errorf("Failed to input: %w", err)
+	}
+	return nil
 }
 
 func (w *NvimWrapper) Render() (NvimResult, error) {
@@ -98,14 +112,14 @@ func (w *NvimWrapper) getCursorPos() ([2]int, error) {
 
 	win, err := v.CurrentWindow()
 	if err != nil {
-		return [2]int{}, err
+		return [2]int{}, fmt.Errorf("Failed to get current window: %w", err)
 
 	}
 
 	// Get cursor position
 	pos, err := v.WindowCursor(win)
 	if err != nil {
-		return [2]int{}, err
+		return [2]int{}, fmt.Errorf("Failed to get cursor: %w", err)
 	}
 	return pos, nil
 }
@@ -120,13 +134,13 @@ func (w *NvimWrapper) getVisibleLines() ([]Line, error) {
 	var firstLine int
 	err = v.Eval("line('w0')", &firstLine)
 	if err != nil {
-		return []Line{}, err
+		return []Line{}, fmt.Errorf("Failed to get first line: %w", err)
 
 	}
 	var lastLine int
 	err = v.Eval("line('w$')", &lastLine)
 	if err != nil {
-		return []Line{}, err
+		return []Line{}, fmt.Errorf("Failed to get last line: %w", err)
 
 	}
 
@@ -155,7 +169,7 @@ func (w *NvimWrapper) getStatus() (string, error) {
 	v := w.v
 	result, err := v.EvalStatusLine("%{mode()} %f %h%m%r%=%-14.(%l,%c%V%) %P", map[string]interface{}{})
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("Get status: %w", err)
 	}
 
 	str, ok := result["str"].(string)

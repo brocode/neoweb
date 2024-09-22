@@ -6,6 +6,7 @@ templ:
 
 check:
     go vet ./...
+    golangci-lint run ./...
 
 fmt:
     templ fmt .

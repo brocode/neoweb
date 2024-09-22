@@ -32,7 +32,7 @@ jobs:
 
     - name: Check Go Format
       run: |
-        fmt_output=$(go fmt -n ./...)
+        fmt_output=$(go fmt ./...)
         if [ -n "$fmt_output" ]; then
           echo "Go code is not formatted according to go fmt."
           echo "$fmt_output"

@@ -41,9 +41,9 @@ func Run() {
 			return
 		}
 		err = components.Main(result).Render(r.Context(), w)
-        if err != nil {
-            slog.Error("Failed to render response", "error",  err)
-        }
+		if err != nil {
+			slog.Error("Failed to render response", "error", err)
+		}
 	})
 
 	addr := ":8080"

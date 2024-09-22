@@ -30,6 +30,15 @@ jobs:
     - name: Tidy
       run: go mod tidy -diff
 
+    - name: Check Go Format
+      run: |
+        fmt_output=$(go fmt -n ./...)
+        if [ -n "$fmt_output" ]; then
+          echo "Go code is not formatted according to go fmt."
+          echo "$fmt_output"
+          exit 1
+        fi
+
   golangci:
     name: lint
     runs-on: ubuntu-latest

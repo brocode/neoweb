@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/brocode/neoweb/key"
 	"github.com/brocode/neoweb/nvimwrapper/raster"
 	"github.com/neovim/go-client/nvim"
 )
@@ -76,7 +77,7 @@ func (n *NvimWrapper) handleRedraw(updates ...[]interface{}) {
 			continue
 		}
 
-		slog.Info("Redraw Event", "name", eventName)
+		slog.Debug("Redraw Event", "name", eventName)
 		switch eventName {
 		case "grid_resize":
 			va := update[1].([]interface{})
@@ -103,7 +104,7 @@ func (n *NvimWrapper) handleRedraw(updates ...[]interface{}) {
 				row := line_data[1].(int64)
 				col := line_data[2].(int64)
 
-				slog.Info("put grid_line", "line", line)
+				slog.Debug("put grid_line", "line", line)
 				var buffer bytes.Buffer
 				// cells is an array of arrays each with 1 to 3 items: [text(, hl_id, repeat)]
 				for _, cell := range line_data[3].([]interface{}) {
@@ -114,7 +115,7 @@ func (n *NvimWrapper) handleRedraw(updates ...[]interface{}) {
 					}
 					buffer.WriteString(text)
 				}
-				slog.Info("put grid_line interpreted", "row", row, "col", col, "text", buffer.String())
+				slog.Debug("put grid_line interpreted", "row", row, "col", col, "text", buffer.String())
 				n.r.Put(int(row), int(col), []rune(buffer.String()))
 			}
 		}
@@ -146,6 +147,16 @@ func (w *NvimWrapper) Input(input string) error {
 		return fmt.Errorf("Failed to input: %w", err)
 	}
 	return nil
+}
+
+func (w *NvimWrapper) SendKey(keyPress key.KeyPress) {
+	// TODO actually consider modifiers. "shift" is also a key
+	err := w.Input(keyPress.Key)
+
+	if err != nil {
+		slog.Error("Failed to process keypress.", "press", keyPress)
+	}
+
 }
 
 func (w *NvimWrapper) Render() (NvimResult, error) {

@@ -69,7 +69,7 @@ func BasePage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script>\n    // Listen for global keypresses on the entire document\n    document.addEventListener(\"keydown\", function(event) {\n\n        // F keys should stay in the browser. for now\n        if(event.keyCode >= 112 && event.keyCode <= 123) {\n            return\n        }\n\n        event.preventDefault()\n        // Send the keypress information to the server\n        fetch('/keypress', {\n            method: 'POST',\n            headers: {\n                'Content-Type': 'application/json',\n            },\n            body: JSON.stringify({\n                key: event.key,\n                keyCode: event.keyCode,\n                shiftKey: event.shiftKey,\n                ctrlKey: event.ctrlKey,\n                altKey: event.altKey,\n                metaKey: event.metaKey\n            })\n        })\n        .then(response => response.json())\n        .then(data => console.log('Server response:', data))\n        .catch((error) => console.error('Error:', error));\n    });\n</script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

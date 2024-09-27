@@ -1,11 +1,13 @@
 package server
 
 import (
+	"encoding/json"
 	"log/slog"
 	"net/http"
 	"os"
 
 	"github.com/brocode/neoweb/components"
+	"github.com/brocode/neoweb/key"
 	"github.com/brocode/neoweb/nvimwrapper"
 )
 
@@ -44,6 +46,18 @@ func Run() {
 		if err != nil {
 			slog.Error("Failed to render response", "error", err)
 		}
+	})
+
+	mux.HandleFunc("POST /keypress", func(w http.ResponseWriter, r *http.Request) {
+		var keyPress key.KeyPress
+		err := json.NewDecoder(r.Body).Decode(&keyPress)
+		if err != nil {
+			http.Error(w, "Failed to unmarshall request", 400)
+			return
+		}
+
+		nvimWrapper.SendKey(keyPress)
+
 	})
 
 	addr := ":8080"

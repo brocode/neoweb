@@ -20,7 +20,7 @@ func Run() {
 	}
 	defer nvimWrapper.Close()
 
-	err = nvimWrapper.OpenFile("main.go")
+	err = nvimWrapper.OpenFile("demo.sh")
 	if err != nil {
 		slog.Error("Failed to open file", "Error", err)
 		os.Exit(1)

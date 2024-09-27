@@ -46,7 +46,7 @@ func Spawn() (*NvimWrapper, error) {
 
 	// Start an embedded Neovim process
 	v, err := nvim.NewChildProcess(
-		nvim.ChildProcessArgs("--embed", "--clean"),
+		nvim.ChildProcessArgs("--embed", "--clean", "--cmd", "set noswapfile"),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to start embedded neovim: %w", err)

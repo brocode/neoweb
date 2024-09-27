@@ -15,7 +15,7 @@ import (
 
 func editor() templ.CSSClass {
 	templ_7745c5c3_CSSBuilder := templruntime.GetBuilder()
-	templ_7745c5c3_CSSBuilder.WriteString(`font-family:"Fira Code";`)
+	templ_7745c5c3_CSSBuilder.WriteString(`font-family:"Fira Code", monospace;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`font-size:17px;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`background-color:var(--color-base);`)
 	templ_7745c5c3_CSSBuilder.WriteString(`color:var(--color-text);`)

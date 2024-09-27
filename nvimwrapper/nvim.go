@@ -111,9 +111,7 @@ func (n *NvimWrapper) handleRedraw(updates ...[]interface{}) {
 					buffer.WriteString(text)
 				}
 				slog.Info("put grid_line interpreted", "row", row, "col", col, "text", buffer.String())
-				// TODO should not move cursor for this
-				n.r.CursorGoto(int(row), int(col))
-				n.r.Put([]rune(buffer.String()))
+				n.r.Put(int(row), int(col), []rune(buffer.String()))
 			}
 		}
 	}

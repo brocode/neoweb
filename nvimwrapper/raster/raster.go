@@ -26,11 +26,10 @@ func (r *Raster) CursorGoto(row, col int) {
 	r.Col = col
 }
 
-func (r *Raster) Put(runes []rune) {
+func (r *Raster) Put(rowIdx, colIdx int, runes []rune) {
 	slog.Info("Put", "text", string(runes))
-	row := r.raster[r.Row]
-	copy(row[r.Col:], runes)
-	r.Col = r.Col + len(runes)
+	row := r.raster[rowIdx]
+	copy(row[colIdx:], runes)
 }
 
 func (r *Raster) Render() []string {

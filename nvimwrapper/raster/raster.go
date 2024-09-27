@@ -14,9 +14,9 @@ func New() *Raster {
 
 func (r *Raster) Resize(cols, rows int) {
 	slog.Info("Resize raster", "rows", rows, "cols", cols)
-	r.raster = make([][]rune, rows, rows)
+	r.raster = make([][]rune, rows)
 	for i := range r.raster {
-		r.raster[i] = make([]rune, cols, cols)
+		r.raster[i] = make([]rune, cols)
 	}
 }
 

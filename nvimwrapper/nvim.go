@@ -60,7 +60,11 @@ func Spawn() (*NvimWrapper, error) {
 	}
 	wrapper.v = v
 
-	v.RegisterHandler("redraw", wrapper.handleRedraw)
+	err = v.RegisterHandler("redraw", wrapper.handleRedraw)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to register handler: %w", err)
+
+	}
 
 	return &wrapper, nil
 }

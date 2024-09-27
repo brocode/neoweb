@@ -1,8 +1,10 @@
 package nvimwrapper
 
 import (
+	"bytes"
 	"fmt"
 	"log/slog"
+	"strings"
 
 	"github.com/brocode/neoweb/nvimwrapper/raster"
 	"github.com/neovim/go-client/nvim"
@@ -50,7 +52,8 @@ func Spawn() (*NvimWrapper, error) {
 	}
 
 	// Set UI dimensions (rows and columns)
-	err = v.AttachUI(Cols, Rows, make(map[string]interface{}))
+	attachConfig := map[string]interface{}{"ext_linegrid": true}
+	err = v.AttachUI(Cols, Rows, attachConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to attach UI: %w", err)
 
@@ -71,30 +74,47 @@ func (n *NvimWrapper) handleRedraw(updates ...[]interface{}) {
 
 		slog.Info("Redraw Event", "name", eventName)
 		switch eventName {
-		case "resize":
+		case "grid_resize":
 			va := update[1].([]interface{})
 			ia := make([]int, 0, 2)
-			for _, v := range va {
+			// TODO first element is the grid id, multiple grids are supported
+			for _, v := range va[1:] {
 				ia = append(ia, int(v.(int64)))
 			}
 			n.r.Resize(ia[0], ia[1])
-		case "cursor_goto":
+		case "grid_cursor_goto":
 			va := update[1].([]interface{})
 			ia := make([]int, 0, 2)
-			for _, v := range va {
+			// TODO first element is the grid id, multiple grids are supported
+			for _, v := range va[1:] {
 				ia = append(ia, int(v.(int64)))
 			}
 			n.r.CursorGoto(ia[0], ia[1])
-		case "put":
-			a := make([]rune, 0, len(update)-1)
-			for _, v := range update[1:] {
-				ia := v.([]interface{})
-				for _, rv := range ia {
-					s := rv.(string)
-					a = append(a, []rune(s)[0])
+		case "grid_line":
+			for _, line := range update[1:] {
+				//["grid_line", grid, row, col_start, cells, wrap]
+				//Redraw a continuous part of a row on a grid, starting at the column col_start.
+				line_data := line.([]interface{})
+				// TODO grid id is ignored for now
+				row := line_data[1].(int64)
+				col := line_data[2].(int64)
+
+				slog.Info("put grid_line", "line", line)
+				var buffer bytes.Buffer
+				// cells is an array of arrays each with 1 to 3 items: [text(, hl_id, repeat)]
+				for _, cell := range line_data[3].([]interface{}) {
+					cell_contents := cell.([]interface{})
+					text := cell_contents[0].(string)
+					if len(cell_contents) == 3 {
+						text = strings.Repeat(text, int(cell_contents[2].(int64)))
+					}
+					buffer.WriteString(text)
 				}
+				slog.Info("put grid_line interpreted", "row", row, "col", col, "text", buffer.String())
+				// TODO should not move cursor for this
+				n.r.CursorGoto(int(row), int(col))
+				n.r.Put([]rune(buffer.String()))
 			}
-			n.r.Put(a)
 		}
 	}
 }

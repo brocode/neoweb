@@ -1,7 +1,10 @@
+clideps:
+    go install github.com/a-h/templ/cmd/templ@latest
+
 build: templ
     go build -o neoweb main.go
 
-templ:
+templ: clideps
     templ generate
 
 check:

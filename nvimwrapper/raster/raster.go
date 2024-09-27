@@ -13,7 +13,7 @@ func New() *Raster {
 }
 
 func (r *Raster) Resize(cols, rows int) {
-	slog.Info("Resize raster", "rows", rows, "cols", cols)
+	slog.Debug("Resize raster", "rows", rows, "cols", cols)
 	r.raster = make([][]rune, rows)
 	for i := range r.raster {
 		r.raster[i] = make([]rune, cols)
@@ -21,13 +21,13 @@ func (r *Raster) Resize(cols, rows int) {
 }
 
 func (r *Raster) CursorGoto(row, col int) {
-	slog.Info("Cursor Goto", "row", row, "col", col)
+	slog.Debug("Cursor Goto", "row", row, "col", col)
 	r.Row = row
 	r.Col = col
 }
 
 func (r *Raster) Put(rowIdx, colIdx int, runes []rune) {
-	slog.Info("Put", "text", string(runes))
+	slog.Debug("Put", "text", string(runes))
 	row := r.raster[rowIdx]
 	copy(row[colIdx:], runes)
 }

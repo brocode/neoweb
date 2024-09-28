@@ -25,3 +25,8 @@ go.work.sum
 .env
 /main
 /neoweb
+
+/components/*_templ.go
+
+cover.out
+cover.html

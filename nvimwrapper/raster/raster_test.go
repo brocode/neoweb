@@ -83,4 +83,3 @@ func TestWriteAtDifferentPositions(t *testing.T) {
 	}
 	require.Equal(t, expected, lines)
 }
-

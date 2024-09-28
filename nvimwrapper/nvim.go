@@ -80,13 +80,18 @@ func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
 
 		slog.Debug("Redraw Event", "name", eventName, "updates", updates)
 		for _, update := range updates {
+			tuple, ok := update.([]interface{})
+			if !ok {
+				slog.Error("Update is not a tuple", "update", update)
+				continue
+			}
 			switch eventName {
 			case "grid_resize":
-				n.handleResize(update.([]interface{}))
+				n.handleResize(tuple)
 			case "grid_cursor_goto":
-				n.handleGoto(update.([]interface{}))
+				n.handleGoto(tuple)
 			case "grid_line":
-				n.handleGridLine(update.([]interface{}))
+				n.handleGridLine(tuple)
 			}
 		}
 	}

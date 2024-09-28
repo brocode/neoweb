@@ -44,19 +44,14 @@ templ Main(nvimResult nvimwrapper.NvimResult) {
     });
 </script>
 		<script>
-        // Create a new EventSource to listen to the SSE endpoint
         const source = new EventSource('/events');
 
-        // Listen for the 'message' event
         source.addEventListener('render', function(event) {
-            // Log the event data (optional, for debugging)
-            console.log(event.data);
+            console.debug(event.data);
 
-            // Update the innerHTML of the div with id "editor"
             document.getElementById('editor').innerHTML = event.data;
         });
 
-        // Handle any potential errors (optional)
         source.onerror = function(error) {
             console.error('Error receiving SSE:', error);
         };

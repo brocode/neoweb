@@ -1,6 +1,7 @@
 package server
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"log/slog"
@@ -11,6 +12,9 @@ import (
 	"github.com/brocode/neoweb/key"
 	"github.com/brocode/neoweb/nvimwrapper"
 )
+
+//go:embed static
+var staticFs embed.FS
 
 func Run() {
 
@@ -35,6 +39,8 @@ func Run() {
 	}
 
 	mux := http.NewServeMux()
+
+	mux.Handle("GET /static/", http.FileServer(http.FS(staticFs)))
 
 	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
 		result, err := nvimWrapper.Render()

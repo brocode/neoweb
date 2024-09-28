@@ -10,14 +10,11 @@ import (
 )
 
 func main() {
-	// Define CLI flags
 	handlerType := flag.String("log-format", "text", "Log format: text or json")
 	logLevel := flag.String("log-level", "info", "Log level: debug, info, warn, error")
 
-	// Parse the flags
 	flag.Parse()
 
-	// Determine the log level
 	var level slog.Level
 	switch *logLevel {
 	case "debug":
@@ -32,7 +29,6 @@ func main() {
 		log.Fatalf("unknown log level: %s", *logLevel)
 	}
 
-	// Create the appropriate log handler based on the flag
 	var handler slog.Handler
 	switch *handlerType {
 	case "text":
@@ -43,10 +39,8 @@ func main() {
 		log.Fatalf("unknown log format: %s", *handlerType)
 	}
 
-	// Set up the logger
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 
-	// Start the server (replace server.Run() with your actual server starting logic)
 	server.Run()
 }

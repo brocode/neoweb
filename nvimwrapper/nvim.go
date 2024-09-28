@@ -70,56 +70,63 @@ func Spawn() (*NvimWrapper, error) {
 	return &wrapper, nil
 }
 
-func (n *NvimWrapper) handleRedraw(updates ...[]interface{}) {
-	for _, update := range updates {
-		eventName, ok := update[0].(string)
+func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
+	for _, event := range events {
+		eventName, ok := event[0].(string)
 		if !ok {
 			continue
 		}
+		updates := event[1:]
 
-		slog.Debug("Redraw Event", "name", eventName)
-		switch eventName {
-		case "grid_resize":
-			va := update[1].([]interface{})
-			ia := make([]int, 0, 2)
-			// TODO first element is the grid id, multiple grids are supported
-			for _, v := range va[1:] {
-				ia = append(ia, int(v.(int64)))
-			}
-			n.r.Resize(ia[0], ia[1])
-		case "grid_cursor_goto":
-			va := update[1].([]interface{})
-			ia := make([]int, 0, 2)
-			// TODO first element is the grid id, multiple grids are supported
-			for _, v := range va[1:] {
-				ia = append(ia, int(v.(int64)))
-			}
-			n.r.CursorGoto(ia[0], ia[1])
-		case "grid_line":
-			for _, line := range update[1:] {
-				//["grid_line", grid, row, col_start, cells, wrap]
-				//Redraw a continuous part of a row on a grid, starting at the column col_start.
-				line_data := line.([]interface{})
-				// TODO grid id is ignored for now
-				row := line_data[1].(int64)
-				col := line_data[2].(int64)
-
-				slog.Debug("put grid_line", "line", line)
-				var buffer bytes.Buffer
-				// cells is an array of arrays each with 1 to 3 items: [text(, hl_id, repeat)]
-				for _, cell := range line_data[3].([]interface{}) {
-					cell_contents := cell.([]interface{})
-					text := cell_contents[0].(string)
-					if len(cell_contents) == 3 {
-						text = strings.Repeat(text, int(cell_contents[2].(int64)))
-					}
-					buffer.WriteString(text)
-				}
-				slog.Debug("put grid_line interpreted", "row", row, "col", col, "text", buffer.String())
-				n.r.Put(int(row), int(col), []rune(buffer.String()))
+		slog.Debug("Redraw Event", "name", eventName, "updates", updates)
+		for _, update := range updates {
+			switch eventName {
+			case "grid_resize":
+				n.handleResize(update.([]interface{}))
+			case "grid_cursor_goto":
+				n.handleGoto(update.([]interface{}))
+			case "grid_line":
+				n.handleGridLine(update.([]interface{}))
 			}
 		}
 	}
+}
+
+func (n *NvimWrapper) handleGridLine(line_data []interface{}) {
+	// TODO grid id is ignored for now
+	row := line_data[1].(int64)
+	col := line_data[2].(int64)
+
+	slog.Debug("put grid_line", "line", line_data)
+	var buffer bytes.Buffer
+	// cells is an array of arrays each with 1 to 3 items: [text(, hl_id, repeat)]
+	for _, cell := range line_data[3].([]interface{}) {
+		cell_contents := cell.([]interface{})
+		text := cell_contents[0].(string)
+		if len(cell_contents) == 3 {
+			text = strings.Repeat(text, int(cell_contents[2].(int64)))
+		}
+		buffer.WriteString(text)
+	}
+	slog.Debug("put grid_line interpreted", "row", row, "col", col, "text", buffer.String())
+	n.r.Put(int(row), int(col), []rune(buffer.String()))
+
+}
+func (n *NvimWrapper) handleGoto(update []interface{}) {
+	ia := make([]int, 0, 2)
+	// TODO first element is the grid id, multiple grids are supported
+	for _, v := range update[1:] {
+		ia = append(ia, int(v.(int64)))
+	}
+	n.r.CursorGoto(ia[0], ia[1])
+}
+func (n *NvimWrapper) handleResize(update []interface{}) {
+	ia := make([]int, 0, 2)
+	// TODO first element is the grid id, multiple grids are supported
+	for _, v := range update[1:] {
+		ia = append(ia, int(v.(int64)))
+	}
+	n.r.Resize(ia[0], ia[1])
 }
 
 func (w *NvimWrapper) Close() {

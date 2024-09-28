@@ -2,9 +2,11 @@ package nvimwrapper
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log/slog"
 	"strings"
+	"sync"
 
 	"github.com/brocode/neoweb/key"
 	"github.com/brocode/neoweb/nvimwrapper/raster"
@@ -22,8 +24,10 @@ type NvimResult struct {
 }
 
 type NvimWrapper struct {
-	v *nvim.Nvim
-	r *raster.Raster
+	v    *nvim.Nvim
+	r    *raster.Raster
+	cond *sync.Cond
+	mu   sync.Mutex
 }
 
 type Line struct {
@@ -43,6 +47,7 @@ func Spawn() (*NvimWrapper, error) {
 
 	wrapper := NvimWrapper{}
 	wrapper.r = raster.New()
+	wrapper.cond = sync.NewCond(&wrapper.mu)
 
 	// Start an embedded Neovim process
 	v, err := nvim.NewChildProcess(
@@ -71,6 +76,8 @@ func Spawn() (*NvimWrapper, error) {
 }
 
 func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
 	for _, event := range events {
 		eventName, ok := event[0].(string)
 		if !ok {
@@ -92,6 +99,9 @@ func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
 				n.handleGoto(tuple)
 			case "grid_line":
 				n.handleGridLine(tuple)
+			case "flush":
+				slog.Debug("Flush")
+				n.cond.Broadcast()
 			}
 		}
 	}
@@ -171,12 +181,52 @@ func (w *NvimWrapper) SendKey(keyPress key.KeyPress) {
 
 }
 
-func (w *NvimWrapper) Render() (NvimResult, error) {
+func (n *NvimWrapper) Render() (NvimResult, error) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+	return n.render()
+}
 
-	lines := w.r.Render()
+func (n *NvimWrapper) render() (NvimResult, error) {
+	lines := n.r.Render()
 
 	return NvimResult{
 		Lines:          lines,
-		CursorPosition: [2]int{w.r.Row, w.r.Col},
+		CursorPosition: [2]int{n.r.Row, n.r.Col},
 	}, nil
+}
+
+func (n *NvimWrapper) RenderOnFlush(ctx context.Context, handler func(result NvimResult) error) error {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+
+	// wake up in case the client disconnected
+	go func() {
+		<-ctx.Done()
+		n.mu.Lock()
+		defer n.mu.Unlock()
+
+		n.cond.Broadcast()
+	}()
+
+	for {
+		result, err := n.render()
+		if err != nil {
+			return err
+		}
+		err = handler(result)
+		if err != nil {
+			return err
+		}
+
+		n.cond.Wait()
+
+		select {
+		case <-ctx.Done():
+			return nil
+		default:
+			continue
+		}
+	}
+
 }

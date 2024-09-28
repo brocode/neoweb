@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -57,6 +58,37 @@ func Run() {
 		}
 
 		nvimWrapper.SendKey(keyPress)
+
+	})
+
+	mux.HandleFunc("GET /events", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+
+		// Flush the headers immediately
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			return
+		}
+
+		nvimWrapper.RenderOnFlush(r.Context(), func(result nvimwrapper.NvimResult) error {
+			fmt.Fprintf(w, "event: render\n")
+			fmt.Fprintf(w, "data:")
+			err = components.Editor(result).Render(r.Context(), w)
+			if err != nil {
+				return fmt.Errorf("Failed to render response: %w", err)
+			}
+			fmt.Fprintf(w, "\n\n")
+			flusher.Flush()
+			return nil
+		})
+		if err != nil {
+			slog.Error("Failed to render on flush", "err", err)
+		}
+
+		slog.Info("Events client disconnected")
 
 	})
 

@@ -20,6 +20,14 @@ func (r *Raster) Resize(cols, rows int) {
 	}
 }
 
+func (r *Raster) fillWithSpaces() {
+	for i := range r.raster {
+		for j := range r.raster[i] {
+			r.raster[i][j] = ' '
+		}
+	}
+}
+
 func (r *Raster) CursorGoto(row, col int) {
 	slog.Debug("Cursor Goto", "row", row, "col", col)
 	r.Row = row

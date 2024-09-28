@@ -67,36 +67,6 @@ templ BasePage() {
 		</head>
 		<body class={ page() }>
 			{ children... }
-			<script>
-    // Listen for global keypresses on the entire document
-    document.addEventListener("keydown", function(event) {
-
-        // F keys should stay in the browser. for now
-        if(event.keyCode >= 112 && event.keyCode <= 123) {
-            return
-        }
-
-        event.preventDefault()
-        // Send the keypress information to the server
-        fetch('/keypress', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                key: event.key,
-                keyCode: event.keyCode,
-                shiftKey: event.shiftKey,
-                ctrlKey: event.ctrlKey,
-                altKey: event.altKey,
-                metaKey: event.metaKey
-            })
-        })
-        .then(response => response.json())
-        .then(data => console.log('Server response:', data))
-        .catch((error) => console.error('Error:', error));
-    });
-</script>
 		</body>
 	</html>
 }

@@ -1,6 +1,13 @@
 #!/bin/bash
 
-# Array of funny ASCII art
+# comment to make this file scroll
+# comment to make this file scroll
+# comment to make this file scroll
+# comment to make this file scroll
+
+set -u -o pipefail -u
+
+# Array of ASCII art
 ascii_art=(
 "
   __

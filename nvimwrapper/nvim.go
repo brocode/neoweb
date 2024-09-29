@@ -172,8 +172,41 @@ func (w *NvimWrapper) Input(input string) error {
 }
 
 func (w *NvimWrapper) SendKey(keyPress key.KeyPress) {
-	// TODO actually consider modifiers. "shift" is also a key
-	err := w.Input(keyPress.Key)
+	input := ""
+	// TODO handle modifiers
+	switch keyPress.Key {
+	case "Escape":
+		input = "<Esc>"
+	case "Enter":
+		input = "<CR>"
+	case "Tab":
+		input = "<Tab>"
+	case "Backspace":
+		input = "<BS>"
+	case "Delete":
+		input = "<Del>"
+	case "ArrowUp":
+		input = "<Up>"
+	case "ArrowDown":
+		input = "<Down>"
+	case "ArrowLeft":
+		input = "<Left>"
+	case "ArrowRight":
+		input = "<Right>"
+	case "Home":
+		input = "<Home>"
+	case "End":
+		input = "<End>"
+	case "PageUp":
+		input = "<PageUp>"
+	case "PageDown":
+		input = "<PageDown>"
+	case "Insert":
+		input = "<Insert>"
+	default:
+		input = keyPress.Key
+	}
+	err := w.Input(input)
 
 	if err != nil {
 		slog.Error("Failed to process keypress.", "press", keyPress)

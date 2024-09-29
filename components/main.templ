@@ -21,6 +21,10 @@ templ Main(nvimResult nvimwrapper.NvimResult) {
         if(event.keyCode >= 112 && event.keyCode <= 123) {
             return
         }
+        // Modifier keys.
+        if (event.keyCode === 16 || event.keyCode === 17 || event.keyCode === 18 || event.keyCode === 91) {
+            return;
+        }
 
         event.preventDefault()
         // Send the keypress information to the server

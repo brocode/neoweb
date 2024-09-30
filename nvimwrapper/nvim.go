@@ -26,6 +26,7 @@ type NvimResult struct {
 type NvimWrapper struct {
 	v    *nvim.Nvim
 	r    *raster.Raster
+	hl   map[int]HlAttr
 	cond *sync.Cond
 	mu   sync.Mutex
 }
@@ -45,10 +46,6 @@ func (r NvimResult) Col() int {
 
 func Spawn() (*NvimWrapper, error) {
 
-	wrapper := NvimWrapper{}
-	wrapper.r = raster.New()
-	wrapper.cond = sync.NewCond(&wrapper.mu)
-
 	// Start an embedded Neovim process
 	v, err := nvim.NewChildProcess(
 		nvim.ChildProcessArgs("--embed", "--clean", "--cmd", "set noswapfile"),
@@ -64,7 +61,13 @@ func Spawn() (*NvimWrapper, error) {
 		return nil, fmt.Errorf("Failed to attach UI: %w", err)
 
 	}
-	wrapper.v = v
+
+	wrapper := NvimWrapper{
+		r:  raster.New(),
+		hl: make(map[int]HlAttr),
+		v:  v,
+	}
+	wrapper.cond = sync.NewCond(&wrapper.mu)
 
 	err = v.RegisterHandler("redraw", wrapper.handleRedraw)
 	if err != nil {
@@ -99,12 +102,59 @@ func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
 				n.handleGoto(tuple)
 			case "grid_line":
 				n.handleGridLine(tuple)
+			case "hl_attr_define":
+				n.handleHlAttrDefine(tuple)
 			case "flush":
 				slog.Debug("Flush")
 				n.cond.Broadcast()
 			}
 		}
 	}
+}
+
+func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
+	if len(lineData) != 4 {
+		slog.Warn("Invalid hl attr define.", "data", lineData)
+		return
+	}
+	id := int(lineData[0].(int64))
+	rawAttrs := lineData[1].(map[string]interface{})
+
+	attr := HlAttr{}
+
+	for key, value := range rawAttrs {
+		switch key {
+		case "background":
+			attr.Background = convertToHexColor(value.(uint64))
+		case "foreground":
+			attr.Foreground = convertToHexColor(value.(uint64))
+		case "bold":
+			attr.Bold = value.(bool)
+		case "underline":
+			attr.Underline = value.(bool)
+		case "reverse":
+			attr.Reverse = value.(bool)
+		case "italic":
+			attr.Italic = value.(bool)
+		case "strikethrough":
+			attr.Strikethrough = value.(bool)
+		case "blend":
+			intValue := int(value.(int64))
+			attr.Blend = &intValue
+		case "special":
+			attr.Background = convertToHexColor(value.(uint64))
+		case "undercurl":
+			attr.Undercurl = value.(bool)
+
+		}
+	}
+
+	n.hl[id] = attr
+}
+
+func convertToHexColor(color uint64) *string {
+	hexColor := fmt.Sprintf("#%06X", color)
+	return &hexColor
 }
 
 func (n *NvimWrapper) handleGridLine(line_data []interface{}) {

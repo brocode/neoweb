@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strings"
 	"sync"
 
 	"github.com/brocode/neoweb/key"
@@ -103,6 +104,30 @@ func (w *NvimWrapper) Input(input string) error {
 	return nil
 }
 
+func modifiers(input string, pressed key.KeyPress) string {
+	modifiers := []string{}
+	if pressed.CtrlKey {
+		modifiers = append(modifiers, "C")
+	}
+	if pressed.AltKey {
+		modifiers = append(modifiers, "M")
+	}
+	// TODO dunno if this will fuck us
+	if pressed.ShiftKey && len(input) > 1 {
+		modifiers = append(modifiers, "S")
+	}
+
+	if len(modifiers) < 1 {
+		return input
+	}
+	modifierStr := strings.Join(modifiers, "-")
+	if len(input) > 1 {
+		return fmt.Sprintf("<%s-%s>", modifierStr, input[1:len(input)-1])
+	} else {
+		return fmt.Sprintf("<%s-%s>", modifierStr, input)
+	}
+}
+
 func (w *NvimWrapper) SendKey(keyPress key.KeyPress) {
 	input := ""
 	// TODO handle modifiers
@@ -138,12 +163,11 @@ func (w *NvimWrapper) SendKey(keyPress key.KeyPress) {
 	default:
 		input = keyPress.Key
 	}
-	err := w.Input(input)
+	err := w.Input(modifiers(input, keyPress))
 
 	if err != nil {
 		slog.Error("Failed to process keypress.", "press", keyPress)
 	}
-
 }
 
 func (n *NvimWrapper) Render() (NvimResult, error) {

@@ -16,9 +16,9 @@ import (
 //go:embed static
 var staticFs embed.FS
 
-func Run() {
+func Run(clean bool) {
 
-	nvimWrapper, err := nvimwrapper.Spawn()
+	nvimWrapper, err := nvimwrapper.Spawn(clean)
 	if err != nil {
 		slog.Error("Failed to spawn neovim", "Error", err)
 		os.Exit(1)

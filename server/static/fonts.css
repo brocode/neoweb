@@ -1,0 +1,57 @@
+
+@font-face {
+    font-family: 'MonaspaceNeon';
+    src: url('/static/fonts/MonaspiceNeNerdFontMono-Regular.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MonaspaceNeon';
+    src: url('/static/fonts/MonaspiceNeNerdFontMono-Bold.otf') format('opentype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MonaspaceNeon';
+    src: url('/static/fonts/MonaspiceNeNerdFontMono-BoldItalic.otf') format('opentype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MonaspaceNeon';
+    src: url('/static/fonts/MonaspiceNeNerdFontMono-Italic.otf') format('opentype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MonaspaceNeon';
+    src: url('/static/fonts/MonaspiceNeNerdFontMono-Light.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MonaspaceNeon';
+    src: url('/static/fonts/MonaspiceNeNerdFontMono-LightItalic.otf') format('opentype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'MonaspaceNeon';
+    src: url('/static/fonts/MonaspiceNeNerdFontMono-Medium.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'MonaspaceNeon';
+    src: url('/static/fonts/MonaspiceNeNerdFontMono-MediumItalic.otf') format('opentype');
+    font-weight: 500;
+    font-style: italic;
+}
+

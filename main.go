@@ -12,6 +12,7 @@ import (
 func main() {
 	handlerType := flag.String("log-format", "text", "Log format: text or json")
 	logLevel := flag.String("log-level", "info", "Log level: debug, info, warn, error")
+	clean := flag.Bool("clean", false, "Start nvim clean")
 
 	flag.Parse()
 
@@ -42,5 +43,5 @@ func main() {
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 
-	server.Run()
+	server.Run(*clean)
 }

@@ -43,11 +43,15 @@ func (r NvimResult) Col() int {
 	return r.CursorPosition[1]
 }
 
-func Spawn() (*NvimWrapper, error) {
+func Spawn(clean bool) (*NvimWrapper, error) {
 
+	args := []string{"--embed", "--cmd", "set noswapfile"}
+	if clean {
+		args = append(args, "--clean")
+	}
 	// Start an embedded Neovim process
 	v, err := nvim.NewChildProcess(
-		nvim.ChildProcessArgs("--embed", "--clean", "--cmd", "set noswapfile"),
+		nvim.ChildProcessArgs(args...),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to start embedded neovim: %w", err)

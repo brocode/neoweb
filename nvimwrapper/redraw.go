@@ -45,12 +45,23 @@ func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
 	}
 }
 
+func forceInt(val interface{}) int {
+	switch v := val.(type) {
+	case uint64:
+		return int(v)
+	case int64:
+		return int(v)
+	default:
+		panic(fmt.Sprintf("unexpected type: %T", v))
+	}
+}
+
 func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 	if len(lineData) != 4 {
 		slog.Warn("Invalid hl attr define.", "data", lineData)
 		return
 	}
-	id := int(lineData[0].(int64))
+	id := forceInt(lineData[0])
 	rawAttrs := lineData[1].(map[string]interface{})
 
 	attr := HlAttr{}

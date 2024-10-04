@@ -83,3 +83,55 @@ func TestWriteAtDifferentPositions(t *testing.T) {
 	}
 	require.Equal(t, expected, lines)
 }
+
+func TestMoveRegionUp(t *testing.T) {
+	raster := New()
+	raster.Resize(4, 5)
+	raster.Put(0, 0, []rune("fkbr"))
+	raster.Put(1, 0, []rune("FKBR"))
+	raster.Put(2, 0, []rune("RBKF"))
+	raster.Put(3, 0, []rune("SXOE"))
+	raster.Put(4, 0, []rune("sxoe"))
+
+	raster.ScrollRegion(BoundingBox{
+		Top:   0,
+		Bot:   4,
+		Left:  0,
+		Right: 5,
+	}, 1)
+
+	lines := raster.Render()
+
+	require.Equal(t, []string{
+		"FKBR",
+		"RBKF",
+		"SXOE",
+		"SXOE",
+		"sxoe"}, lines)
+}
+
+func TestMoveRegionDown(t *testing.T) {
+	raster := New()
+	raster.Resize(4, 5)
+	raster.Put(0, 0, []rune("fkbr"))
+	raster.Put(1, 0, []rune("FKBR"))
+	raster.Put(2, 0, []rune("RBKF"))
+	raster.Put(3, 0, []rune("SXOE"))
+	raster.Put(4, 0, []rune("sxoe"))
+
+	raster.ScrollRegion(BoundingBox{
+		Top:   0,
+		Bot:   4,
+		Left:  0,
+		Right: 5,
+	}, -1)
+
+	lines := raster.Render()
+
+	require.Equal(t, []string{
+		"fkbr",
+		"fkbr",
+		"FKBR",
+		"RBKF",
+		"sxoe"}, lines)
+}

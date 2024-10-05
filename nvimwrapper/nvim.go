@@ -101,6 +101,7 @@ func (w *NvimWrapper) OpenFile(file string) error {
 }
 
 func (w *NvimWrapper) Input(input string) error {
+	slog.Debug("Send input", "input", input)
 	_, err := w.v.Input(input)
 	if err != nil {
 		return fmt.Errorf("Failed to input: %w", err)
@@ -117,7 +118,7 @@ func modifiers(input string, pressed key.KeyPress) string {
 		modifiers = append(modifiers, "M")
 	}
 	// TODO dunno if this will fuck us
-	if pressed.ShiftKey && len(input) > 1 {
+	if pressed.ShiftKey && len(input) > 1 && pressed.Key != "<" && pressed.Key != ">" {
 		modifiers = append(modifiers, "S")
 	}
 
@@ -164,6 +165,8 @@ func (w *NvimWrapper) SendKey(keyPress key.KeyPress) {
 		input = "<PageDown>"
 	case "Insert":
 		input = "<Insert>"
+	case "<":
+		input = "<LT>"
 	default:
 		input = keyPress.Key
 	}

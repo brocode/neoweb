@@ -24,7 +24,7 @@ type NvimResult struct {
 
 type NvimWrapper struct {
 	v    *nvim.Nvim
-	r    *raster.Raster
+	r    *raster.Raster[rune]
 	hl   map[int]HlAttr
 	cond *sync.Cond
 	mu   sync.Mutex
@@ -66,7 +66,7 @@ func Spawn(clean bool) (*NvimWrapper, error) {
 	}
 
 	wrapper := NvimWrapper{
-		r:  raster.New(),
+		r:  raster.New[rune](),
 		hl: make(map[int]HlAttr),
 		v:  v,
 	}
@@ -184,7 +184,7 @@ func (n *NvimWrapper) Render() (NvimResult, error) {
 }
 
 func (n *NvimWrapper) render() (NvimResult, error) {
-	lines := n.r.Render()
+	lines := raster.RenderStringArray(n.r)
 
 	return NvimResult{
 		Lines:          lines,

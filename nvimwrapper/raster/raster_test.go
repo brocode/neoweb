@@ -7,22 +7,22 @@ import (
 )
 
 func TestRenderSingleLine(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(20, 1)
-	raster.fillWithSpaces()
+	raster.fillWith(' ')
 	raster.Put(0, 0, []rune("Hello"))
-	lines := raster.Render()
+	lines := RenderStringArray(raster)
 	require.Equal(t, []string{"Hello               "}, lines)
 }
 
 func TestRenderMultipleLines(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(15, 3)
-	raster.fillWithSpaces()
+	raster.fillWith(' ')
 	raster.Put(0, 0, []rune("Line1"))
 	raster.Put(1, 0, []rune("Line2"))
 	raster.Put(2, 0, []rune("Line3"))
-	lines := raster.Render()
+	lines := RenderStringArray(raster)
 	expected := []string{
 		"Line1          ",
 		"Line2          ",
@@ -32,50 +32,50 @@ func TestRenderMultipleLines(t *testing.T) {
 }
 
 func TestOverwriteLine(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(10, 1)
-	raster.fillWithSpaces()
+	raster.fillWith(' ')
 	raster.Put(0, 0, []rune("Test"))
 	raster.Put(0, 0, []rune("Over"))
-	lines := raster.Render()
+	lines := RenderStringArray(raster)
 	require.Equal(t, []string{"Over      "}, lines)
 }
 
 func TestPartialOverwrite(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(10, 1)
-	raster.fillWithSpaces()
+	raster.fillWith(' ')
 	raster.Put(0, 0, []rune("12345"))
 	raster.Put(0, 2, []rune("abc"))
-	lines := raster.Render()
+	lines := RenderStringArray(raster)
 	require.Equal(t, []string{"12abc     "}, lines)
 }
 
 func TestFullLineOverwrite(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(5, 1)
-	raster.fillWithSpaces()
+	raster.fillWith(' ')
 	raster.Put(0, 0, []rune("Hello"))
-	lines := raster.Render()
+	lines := RenderStringArray(raster)
 	require.Equal(t, []string{"Hello"}, lines)
 }
 
 func TestEmptyLine(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(5, 1)
-	raster.fillWithSpaces()
-	lines := raster.Render()
+	raster.fillWith(' ')
+	lines := RenderStringArray(raster)
 	require.Equal(t, []string{"     "}, lines)
 }
 
 func TestWriteAtDifferentPositions(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(20, 3)
-	raster.fillWithSpaces()
+	raster.fillWith(' ')
 	raster.Put(0, 0, []rune("Start"))
 	raster.Put(1, 5, []rune("Middle"))
 	raster.Put(2, 15, []rune("End"))
-	lines := raster.Render()
+	lines := RenderStringArray(raster)
 	expected := []string{
 		"Start               ",
 		"     Middle         ",
@@ -85,7 +85,7 @@ func TestWriteAtDifferentPositions(t *testing.T) {
 }
 
 func TestMoveRegionUp(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(4, 5)
 	raster.Put(0, 0, []rune("fkbr"))
 	raster.Put(1, 0, []rune("FKBR"))
@@ -100,7 +100,7 @@ func TestMoveRegionUp(t *testing.T) {
 		Right: 5,
 	}, 1)
 
-	lines := raster.Render()
+	lines := RenderStringArray(raster)
 
 	require.Equal(t, []string{
 		"FKBR",
@@ -111,7 +111,7 @@ func TestMoveRegionUp(t *testing.T) {
 }
 
 func TestMoveRegionDown(t *testing.T) {
-	raster := New()
+	raster := New[rune]()
 	raster.Resize(4, 5)
 	raster.Put(0, 0, []rune("fkbr"))
 	raster.Put(1, 0, []rune("FKBR"))
@@ -126,7 +126,7 @@ func TestMoveRegionDown(t *testing.T) {
 		Right: 5,
 	}, -1)
 
-	lines := raster.Render()
+	lines := RenderStringArray(raster)
 
 	require.Equal(t, []string{
 		"fkbr",

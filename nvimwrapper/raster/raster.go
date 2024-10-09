@@ -9,45 +9,44 @@ type BoundingBox struct {
 	Right int
 }
 
-type Raster struct {
-	raster [][]rune
+type Raster[T any] struct {
+	raster [][]T
 	Row    int
 	Col    int
 }
 
-func New() *Raster {
-	return &Raster{}
+func New[T any]() *Raster[T] {
+	return &Raster[T]{}
 }
 
-func (r *Raster) Resize(cols, rows int) {
+func (r *Raster[T]) Resize(cols, rows int) {
 	slog.Debug("Resize raster", "rows", rows, "cols", cols)
-	r.raster = make([][]rune, rows)
+	r.raster = make([][]T, rows)
 	for i := range r.raster {
-		r.raster[i] = make([]rune, cols)
+		r.raster[i] = make([]T, cols)
 	}
 }
 
-func (r *Raster) fillWithSpaces() {
+func (r *Raster[T]) fillWith(fill T) {
 	for i := range r.raster {
 		for j := range r.raster[i] {
-			r.raster[i][j] = ' '
+			r.raster[i][j] = fill
 		}
 	}
 }
 
-func (r *Raster) CursorGoto(row, col int) {
+func (r *Raster[T]) CursorGoto(row, col int) {
 	slog.Debug("Cursor Goto", "row", row, "col", col)
 	r.Row = row
 	r.Col = col
 }
 
-func (r *Raster) Put(rowIdx, colIdx int, runes []rune) {
-	slog.Debug("Put", "text", string(runes))
+func (r *Raster[T]) Put(rowIdx, colIdx int, runes []T) {
 	row := r.raster[rowIdx]
 	copy(row[colIdx:], runes)
 }
 
-func (r *Raster) Render() []string {
+func RenderStringArray(r *Raster[rune]) []string {
 	lines := make([]string, 0, len(r.raster))
 
 	for _, row := range r.raster {
@@ -58,7 +57,7 @@ func (r *Raster) Render() []string {
 	return lines
 }
 
-func (r *Raster) ScrollRegion(boundingBox BoundingBox, rowMovement int) {
+func (r *Raster[T]) ScrollRegion(boundingBox BoundingBox, rowMovement int) {
 	if rowMovement > 0 {
 		for rowIdx := boundingBox.Top + rowMovement; rowIdx < boundingBox.Bot; rowIdx++ {
 			sliceToMove := r.raster[rowIdx][boundingBox.Left : boundingBox.Right-1]

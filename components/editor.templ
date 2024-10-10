@@ -29,12 +29,21 @@ css textSpan() {
 	white-space: pre;
 }
 
+// TODO
+//text-decoration: {hl.TextDecoration()};
+//font-weight: {hl.FontWeight()};
+
+css hl(hl nvimwrapper.HlAttr) {
+	color: { hl.Color() };
+	background-color: { hl.BackgroundColor() };
+}
+
 templ Editor(nvimResult nvimwrapper.NvimResult) {
 	<div class={ editor() }>
 		for i, line := range nvimResult.Lines {
 			<div id={ fmt.Sprintf("line-%v", i) } class={ editorLine() }>
 				for _, span := range line.Spans {
-					<div class={ textSpan() }>{ span.Text }</div>
+					<div class={ textSpan(), hl(nvimResult.Hl[span.HlId]) }>{ span.Text }</div>
 				}
 				if i == nvimResult.Row() {
 					<div class={ "cursor", cursorOffset(nvimResult.Col()) }></div>

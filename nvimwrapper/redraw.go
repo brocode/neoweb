@@ -101,18 +101,27 @@ func convertToHexColor(color uint64) *string {
 }
 
 func (n *NvimWrapper) handleGridLine(line_data []interface{}) {
+	hlId := 0
 	row := line_data[1].(int64)
 	col := line_data[2].(int64)
 	data := line_data[3].([]interface{})
-	buffer := make([]rune, 0, len(data))
+	buffer := make([]hlRune, 0, len(data))
 	// cells is an array of arrays each with 1 to 3 items: [text(, hl_id, repeat)]
 	for _, cell := range data {
 		cell_contents := cell.([]interface{})
 		text := cell_contents[0].(string)
+		if len(cell_contents) == 2 {
+			hlId = forceInt(cell_contents[1])
+		}
 		if len(cell_contents) == 3 {
 			text = strings.Repeat(text, int(cell_contents[2].(int64)))
 		}
-		buffer = append(buffer, []rune(text)...)
+		for _, rune := range []rune(text) {
+			buffer = append(buffer, hlRune{
+				rune: rune,
+				hlId: hlId,
+			})
+		}
 
 	}
 	n.r.Put(int(row), int(col), buffer)

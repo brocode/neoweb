@@ -17,6 +17,11 @@ const (
 	Cols = 120
 )
 
+type hlRune struct {
+	rune rune
+	hlId int
+}
+
 type NvimResult struct {
 	Lines          []string
 	CursorPosition [2]int
@@ -24,7 +29,7 @@ type NvimResult struct {
 
 type NvimWrapper struct {
 	v    *nvim.Nvim
-	r    *raster.Raster[rune]
+	r    *raster.Raster[hlRune]
 	hl   map[int]HlAttr
 	cond *sync.Cond
 	mu   sync.Mutex
@@ -66,7 +71,7 @@ func Spawn(clean bool) (*NvimWrapper, error) {
 	}
 
 	wrapper := NvimWrapper{
-		r:  raster.New[rune](),
+		r:  raster.New[hlRune](),
 		hl: make(map[int]HlAttr),
 		v:  v,
 	}
@@ -184,12 +189,16 @@ func (n *NvimWrapper) Render() (NvimResult, error) {
 }
 
 func (n *NvimWrapper) render() (NvimResult, error) {
-	lines := raster.RenderStringArray(n.r)
+	lines := renderHlRunes(n.r)
 
 	return NvimResult{
 		Lines:          lines,
 		CursorPosition: [2]int{n.r.Row, n.r.Col},
 	}, nil
+}
+
+func renderHlRunes(r *raster.Raster[hlRune]) []string {
+	panic("TODO")
 }
 
 func (n *NvimWrapper) RenderOnFlush(ctx context.Context, handler func(result NvimResult) error) error {

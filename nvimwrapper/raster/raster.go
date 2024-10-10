@@ -10,7 +10,7 @@ type BoundingBox struct {
 }
 
 type Raster[T any] struct {
-	raster [][]T
+	Raster [][]T
 	Row    int
 	Col    int
 }
@@ -21,16 +21,16 @@ func New[T any]() *Raster[T] {
 
 func (r *Raster[T]) Resize(cols, rows int) {
 	slog.Debug("Resize raster", "rows", rows, "cols", cols)
-	r.raster = make([][]T, rows)
-	for i := range r.raster {
-		r.raster[i] = make([]T, cols)
+	r.Raster = make([][]T, rows)
+	for i := range r.Raster {
+		r.Raster[i] = make([]T, cols)
 	}
 }
 
 func (r *Raster[T]) fillWith(fill T) {
-	for i := range r.raster {
-		for j := range r.raster[i] {
-			r.raster[i][j] = fill
+	for i := range r.Raster {
+		for j := range r.Raster[i] {
+			r.Raster[i][j] = fill
 		}
 	}
 }
@@ -42,14 +42,14 @@ func (r *Raster[T]) CursorGoto(row, col int) {
 }
 
 func (r *Raster[T]) Put(rowIdx, colIdx int, runes []T) {
-	row := r.raster[rowIdx]
+	row := r.Raster[rowIdx]
 	copy(row[colIdx:], runes)
 }
 
 func RenderStringArray(r *Raster[rune]) []string {
-	lines := make([]string, 0, len(r.raster))
+	lines := make([]string, 0, len(r.Raster))
 
-	for _, row := range r.raster {
+	for _, row := range r.Raster {
 		line := string(row)
 		lines = append(lines, line)
 	}
@@ -60,14 +60,14 @@ func RenderStringArray(r *Raster[rune]) []string {
 func (r *Raster[T]) ScrollRegion(boundingBox BoundingBox, rowMovement int) {
 	if rowMovement > 0 {
 		for rowIdx := boundingBox.Top + rowMovement; rowIdx < boundingBox.Bot; rowIdx++ {
-			sliceToMove := r.raster[rowIdx][boundingBox.Left : boundingBox.Right-1]
-			destinationSlice := r.raster[rowIdx-rowMovement][boundingBox.Left : boundingBox.Right-1]
+			sliceToMove := r.Raster[rowIdx][boundingBox.Left : boundingBox.Right-1]
+			destinationSlice := r.Raster[rowIdx-rowMovement][boundingBox.Left : boundingBox.Right-1]
 			copy(destinationSlice, sliceToMove)
 		}
 	} else {
 		for rowIdx := boundingBox.Bot + rowMovement - 1; rowIdx >= boundingBox.Top; rowIdx-- {
-			sliceToMove := r.raster[rowIdx][boundingBox.Left : boundingBox.Right-1]
-			destinationSlice := r.raster[rowIdx-rowMovement][boundingBox.Left : boundingBox.Right-1]
+			sliceToMove := r.Raster[rowIdx][boundingBox.Left : boundingBox.Right-1]
+			destinationSlice := r.Raster[rowIdx-rowMovement][boundingBox.Left : boundingBox.Right-1]
 			copy(destinationSlice, sliceToMove)
 		}
 	}

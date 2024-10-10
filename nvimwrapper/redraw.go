@@ -116,7 +116,7 @@ func (n *NvimWrapper) handleGridLine(line_data []interface{}) {
 		if len(cell_contents) == 3 {
 			text = strings.Repeat(text, int(cell_contents[2].(int64)))
 		}
-		for _, rune := range []rune(text) {
+		for _, rune := range text {
 			buffer = append(buffer, hlRune{
 				rune: rune,
 				hlId: hlId,

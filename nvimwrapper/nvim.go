@@ -22,8 +22,16 @@ type hlRune struct {
 	hlId int
 }
 
+type Span struct {
+	Text string
+	HlId int
+}
+type RenderedLine struct {
+	Spans []Span
+}
+
 type NvimResult struct {
-	Lines          []string
+	Lines          []RenderedLine
 	CursorPosition [2]int
 }
 
@@ -197,8 +205,38 @@ func (n *NvimWrapper) render() (NvimResult, error) {
 	}, nil
 }
 
-func renderHlRunes(r *raster.Raster[hlRune]) []string {
-	panic("TODO")
+func renderHlRunes(r *raster.Raster[hlRune]) []RenderedLine {
+	lines := []RenderedLine{}
+
+	for _, row := range r.Raster {
+		line := RenderedLine{}
+
+		hlId := row[0].hlId
+		spanBuffer := []rune{}
+
+		for _, currentRune := range row {
+			if currentRune.hlId != hlId {
+				line.Spans = append(line.Spans, Span{
+					Text: string(spanBuffer),
+					HlId: hlId,
+				})
+				hlId = currentRune.hlId
+				spanBuffer = []rune{}
+			}
+			spanBuffer = append(spanBuffer, currentRune.rune)
+
+		}
+		if len(spanBuffer) > 0 {
+			line.Spans = append(line.Spans, Span{
+				Text: string(spanBuffer),
+				HlId: hlId,
+			})
+		}
+
+		lines = append(lines, line)
+	}
+
+	return lines
 }
 
 func (n *NvimWrapper) RenderOnFlush(ctx context.Context, handler func(result NvimResult) error) error {

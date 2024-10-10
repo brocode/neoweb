@@ -15,10 +15,6 @@ css editor() {
 	width: { fmt.Sprintf("%vch", nvimwrapper.Cols) };
 }
 
-css lineText() {
-	white-space: pre;
-}
-
 css cursorOffset(col int) {
 	left: { templ.SafeCSSProperty(fmt.Sprintf("calc(%v * 1ch)", col)) };
 }
@@ -26,17 +22,20 @@ css cursorOffset(col int) {
 css editorLine() {
 	min-height: 1em;
 	position: relative;
+	display: flex;
 }
 
-css cursorLine() {
-	background-color: var(--color-surface0);
+css textSpan() {
+	white-space: pre;
 }
 
 templ Editor(nvimResult nvimwrapper.NvimResult) {
 	<div class={ editor() }>
 		for i, line := range nvimResult.Lines {
-			<div id={ fmt.Sprintf("line-%v", i) } class={ editorLine(), templ.KV(cursorLine(), i == nvimResult.Row()) }>
-				<span class={ lineText() }>{ line }</span>
+			<div id={ fmt.Sprintf("line-%v", i) } class={ editorLine() }>
+				for _, span := range line.Spans {
+					<div class={ textSpan() }>{ span.Text }</div>
+				}
 				if i == nvimResult.Row() {
 					<div class={ "cursor", cursorOffset(nvimResult.Col()) }></div>
 				}

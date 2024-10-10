@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"maps"
 	"strings"
 	"sync"
 
@@ -33,6 +34,7 @@ type RenderedLine struct {
 type NvimResult struct {
 	Lines          []RenderedLine
 	CursorPosition [2]int
+	Hl             map[int]HlAttr
 }
 
 type NvimWrapper struct {
@@ -199,9 +201,13 @@ func (n *NvimWrapper) Render() (NvimResult, error) {
 func (n *NvimWrapper) render() (NvimResult, error) {
 	lines := renderHlRunes(n.r)
 
+	hl := make(map[int]HlAttr)
+	maps.Copy(hl, n.hl)
+
 	return NvimResult{
 		Lines:          lines,
 		CursorPosition: [2]int{n.r.Row, n.r.Col},
+		Hl:             hl,
 	}, nil
 }
 

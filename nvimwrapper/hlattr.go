@@ -18,6 +18,36 @@ type HlAttr struct {
 	Undercurl     bool
 }
 
+func (hl HlAttr) Color() string {
+	if hl.Foreground != nil {
+		return *hl.Foreground
+	}
+	return "inherit"
+}
+func (hl HlAttr) BackgroundColor() string {
+	if hl.Background != nil {
+		return *hl.Background
+	}
+	return "inherit"
+}
+func (hl HlAttr) FontWeight() string {
+	if hl.Bold {
+		return "bold"
+	}
+	return "normal"
+}
+func (hl HlAttr) TextDecoration() string {
+	decorations := []string{}
+	if hl.Underline {
+		decorations = append(decorations, "underline")
+	}
+
+	if hl.Strikethrough {
+		decorations = append(decorations, "line-through")
+	}
+	return strings.Join(decorations, " ")
+}
+
 func (h HlAttr) String() string {
 	var parts []string
 

@@ -36,6 +36,12 @@ func (hl HlAttr) FontWeight() string {
 	}
 	return "normal"
 }
+func (hl HlAttr) FontStyle() string {
+	if hl.Italic {
+		return "italic"
+	}
+	return "normal"
+}
 func (hl HlAttr) TextDecoration() string {
 	decorations := []string{}
 	if hl.Underline {
@@ -45,7 +51,12 @@ func (hl HlAttr) TextDecoration() string {
 	if hl.Strikethrough {
 		decorations = append(decorations, "line-through")
 	}
-	return strings.Join(decorations, " ")
+
+	if len(decorations) > 0 {
+		return strings.Join(decorations, " ")
+	} else {
+		return "inherit"
+	}
 }
 
 func (h HlAttr) String() string {

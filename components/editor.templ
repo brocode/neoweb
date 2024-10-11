@@ -29,13 +29,12 @@ css textSpan() {
 	white-space: pre;
 }
 
-// TODO
-//text-decoration: {hl.TextDecoration()};
-//font-weight: {hl.FontWeight()};
-
 css hl(hl nvimwrapper.HlAttr) {
 	color: { hl.Color() };
 	background-color: { hl.BackgroundColor() };
+	font-weight: { hl.FontWeight() };
+	font-style: { hl.FontStyle() };
+	text-decoration: { hl.TextDecoration() };
 }
 
 templ Editor(nvimResult nvimwrapper.NvimResult) {

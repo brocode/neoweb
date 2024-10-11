@@ -37,12 +37,19 @@ func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
 				n.handleGridLine(tuple)
 			case "hl_attr_define":
 				n.handleHlAttrDefine(tuple)
+			case "mode_change":
+				n.handleModeChange(tuple)
 			case "flush":
 				slog.Debug("Flush")
 				n.cond.Broadcast()
 			}
 		}
 	}
+}
+
+func (n *NvimWrapper) handleModeChange(lineData []interface{}) {
+	n.mode = lineData[0].(string)
+	n.modeIdx = vimnumbers.ForceInt(lineData[1])
 }
 
 func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {

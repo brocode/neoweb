@@ -39,11 +39,13 @@ type NvimResult struct {
 }
 
 type NvimWrapper struct {
-	v    *nvim.Nvim
-	r    *raster.Raster[hlRune]
-	hl   map[int]hl.HlAttr
-	cond *sync.Cond
-	mu   sync.Mutex
+	v       *nvim.Nvim
+	r       *raster.Raster[hlRune]
+	hl      map[int]hl.HlAttr
+	cond    *sync.Cond
+	mode    string
+	modeIdx int
+	mu      sync.Mutex
 }
 
 type Line struct {
@@ -82,9 +84,11 @@ func Spawn(clean bool) (*NvimWrapper, error) {
 	}
 
 	wrapper := NvimWrapper{
-		r:  raster.New[hlRune](),
-		hl: make(map[int]hl.HlAttr),
-		v:  v,
+		r:       raster.New[hlRune](),
+		hl:      make(map[int]hl.HlAttr),
+		v:       v,
+		mode:    "normal",
+		modeIdx: 0,
 	}
 	wrapper.cond = sync.NewCond(&wrapper.mu)
 

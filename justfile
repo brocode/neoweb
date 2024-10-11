@@ -18,3 +18,6 @@ test:
 
 watch:
     go run github.com/a-h/templ/cmd/templ generate --watch --proxy="http://localhost:8080" --cmd="go run . -log-level debug -clean"
+
+watch-not-clean:
+    go run github.com/a-h/templ/cmd/templ generate --watch --proxy="http://localhost:8080" --cmd="go run . -log-level debug"

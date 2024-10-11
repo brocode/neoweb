@@ -68,9 +68,9 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 	for key, value := range rawAttrs {
 		switch key {
 		case "background":
-			attr.Background = convertToHexColor(value.(uint64))
+			attr.Background = convertToHexColor(forceInt(value))
 		case "foreground":
-			attr.Foreground = convertToHexColor(value.(uint64))
+			attr.Foreground = convertToHexColor(forceInt(value))
 		case "bold":
 			attr.Bold = value.(bool)
 		case "underline":
@@ -82,10 +82,10 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 		case "strikethrough":
 			attr.Strikethrough = value.(bool)
 		case "blend":
-			intValue := int(value.(int64))
+			intValue := forceInt(value)
 			attr.Blend = &intValue
 		case "special":
-			attr.Background = convertToHexColor(value.(uint64))
+			attr.Background = convertToHexColor(forceInt(value))
 		case "undercurl":
 			attr.Undercurl = value.(bool)
 
@@ -95,7 +95,7 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 	n.hl[id] = attr
 }
 
-func convertToHexColor(color uint64) *string {
+func convertToHexColor(color int) *string {
 	hexColor := fmt.Sprintf("#%06X", color)
 	return &hexColor
 }

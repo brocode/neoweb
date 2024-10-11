@@ -67,6 +67,7 @@ func TestRenderHlRunes(t *testing.T) {
 
 	require.Equal(t, 2, len(line.Spans), "2 hl ids")
 	require.Equal(t, "fkb", line.Spans[0].Text)
+	require.Equal(t, "r", line.Spans[1].Text)
 	require.Equal(t, 1, line.Spans[0].HlId)
 	require.Equal(t, 2, line.Spans[1].HlId)
 }

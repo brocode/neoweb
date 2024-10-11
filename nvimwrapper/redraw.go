@@ -1,12 +1,12 @@
 package nvimwrapper
 
 import (
-	"fmt"
 	"log/slog"
 	"strings"
 
 	"github.com/brocode/neoweb/nvimwrapper/hl"
 	"github.com/brocode/neoweb/nvimwrapper/raster"
+	"github.com/brocode/neoweb/nvimwrapper/vimnumbers"
 )
 
 func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
@@ -45,23 +45,12 @@ func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
 	}
 }
 
-func forceInt(val interface{}) int {
-	switch v := val.(type) {
-	case uint64:
-		return int(v)
-	case int64:
-		return int(v)
-	default:
-		panic(fmt.Sprintf("unexpected type: %T", v))
-	}
-}
-
 func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 	if len(lineData) != 4 {
 		slog.Warn("Invalid hl attr define.", "data", lineData)
 		return
 	}
-	id := forceInt(lineData[0])
+	id := vimnumbers.ForceInt(lineData[0])
 	rawAttrs := lineData[1].(map[string]interface{})
 
 	attr := hl.HlAttr{}
@@ -69,9 +58,9 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 	for key, value := range rawAttrs {
 		switch key {
 		case "background":
-			attr.Background = convertToHexColor(forceInt(value))
+			attr.Background = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
 		case "foreground":
-			attr.Foreground = convertToHexColor(forceInt(value))
+			attr.Foreground = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
 		case "bold":
 			attr.Bold = value.(bool)
 		case "underline":
@@ -83,10 +72,10 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 		case "strikethrough":
 			attr.Strikethrough = value.(bool)
 		case "blend":
-			intValue := forceInt(value)
+			intValue := vimnumbers.ForceInt(value)
 			attr.Blend = &intValue
 		case "special":
-			attr.Special = convertToHexColor(forceInt(value))
+			attr.Special = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
 		case "undercurl":
 			attr.Undercurl = value.(bool)
 
@@ -94,11 +83,6 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 	}
 
 	n.hl[id] = attr
-}
-
-func convertToHexColor(color int) *string {
-	hexColor := fmt.Sprintf("#%06X", color)
-	return &hexColor
 }
 
 func (n *NvimWrapper) handleGridLine(line_data []interface{}) {
@@ -112,7 +96,7 @@ func (n *NvimWrapper) handleGridLine(line_data []interface{}) {
 		cell_contents := cell.([]interface{})
 		text := cell_contents[0].(string)
 		if len(cell_contents) >= 2 {
-			hlId = forceInt(cell_contents[1])
+			hlId = vimnumbers.ForceInt(cell_contents[1])
 		}
 		if len(cell_contents) == 3 {
 			text = strings.Repeat(text, int(cell_contents[2].(int64)))

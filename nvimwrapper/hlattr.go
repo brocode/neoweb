@@ -43,7 +43,7 @@ func (hl HlAttr) FontStyle() string {
 	return "normal"
 }
 func (hl HlAttr) TextDecorationColor() string {
-	if hl.Undercurl && hl.Special != nil {
+	if hl.Special != nil {
 		return *hl.Special
 	}
 

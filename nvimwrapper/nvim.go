@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/brocode/neoweb/key"
+	"github.com/brocode/neoweb/nvimwrapper/hl"
 	"github.com/brocode/neoweb/nvimwrapper/raster"
 	"github.com/neovim/go-client/nvim"
 )
@@ -32,15 +33,15 @@ type RenderedLine struct {
 }
 
 type NvimResult struct {
+	Hl             map[int]hl.HlAttr
 	Lines          []RenderedLine
 	CursorPosition [2]int
-	Hl             map[int]HlAttr
 }
 
 type NvimWrapper struct {
 	v    *nvim.Nvim
 	r    *raster.Raster[hlRune]
-	hl   map[int]HlAttr
+	hl   map[int]hl.HlAttr
 	cond *sync.Cond
 	mu   sync.Mutex
 }
@@ -82,7 +83,7 @@ func Spawn(clean bool) (*NvimWrapper, error) {
 
 	wrapper := NvimWrapper{
 		r:  raster.New[hlRune](),
-		hl: make(map[int]HlAttr),
+		hl: make(map[int]hl.HlAttr),
 		v:  v,
 	}
 	wrapper.cond = sync.NewCond(&wrapper.mu)
@@ -201,7 +202,7 @@ func (n *NvimWrapper) Render() (NvimResult, error) {
 func (n *NvimWrapper) render() (NvimResult, error) {
 	lines := renderHlRunes(n.r)
 
-	hl := make(map[int]HlAttr)
+	hl := make(map[int]hl.HlAttr)
 	maps.Copy(hl, n.hl)
 
 	return NvimResult{

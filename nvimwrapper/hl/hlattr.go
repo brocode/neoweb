@@ -1,4 +1,4 @@
-package nvimwrapper
+package hl
 
 import (
 	"fmt"

@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"strings"
 
+	"github.com/brocode/neoweb/nvimwrapper/hl"
 	"github.com/brocode/neoweb/nvimwrapper/raster"
 )
 
@@ -63,7 +64,7 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 	id := forceInt(lineData[0])
 	rawAttrs := lineData[1].(map[string]interface{})
 
-	attr := HlAttr{}
+	attr := hl.HlAttr{}
 
 	for key, value := range rawAttrs {
 		switch key {

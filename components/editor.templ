@@ -3,6 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/brocode/neoweb/nvimwrapper"
+	hlattr "github.com/brocode/neoweb/nvimwrapper/hl"
 )
 
 css editor() {
@@ -29,7 +30,7 @@ css textSpan() {
 	white-space: pre;
 }
 
-css hl(hl nvimwrapper.HlAttr) {
+css hl(hl hlattr.HlAttr) {
 	color: { hl.Color() };
 	background-color: { hl.BackgroundColor() };
 	font-weight: { hl.FontWeight() };

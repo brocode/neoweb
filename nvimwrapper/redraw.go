@@ -110,7 +110,7 @@ func (n *NvimWrapper) handleGridLine(line_data []interface{}) {
 	for _, cell := range data {
 		cell_contents := cell.([]interface{})
 		text := cell_contents[0].(string)
-		if len(cell_contents) == 2 {
+		if len(cell_contents) >= 2 {
 			hlId = forceInt(cell_contents[1])
 		}
 		if len(cell_contents) == 3 {

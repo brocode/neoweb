@@ -85,7 +85,7 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 			intValue := forceInt(value)
 			attr.Blend = &intValue
 		case "special":
-			attr.Background = convertToHexColor(forceInt(value))
+			attr.Special = convertToHexColor(forceInt(value))
 		case "undercurl":
 			attr.Undercurl = value.(bool)
 

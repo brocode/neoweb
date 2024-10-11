@@ -40,6 +40,24 @@ css hl(hl hlattr.HlAttr) {
 	text-decoration-color: { hl.TextDecorationColor() };
 }
 
+css cursor() {
+	position: absolute;
+	min-height: 100%;
+	top: 0;
+	background-color: var(--color-text);
+	mix-blend-mode: difference;
+	animation: blinkCursor 1.5s ease-in-out infinite;
+	pointer-events: none;
+}
+
+css blockCursor() {
+	width: 1ch;
+}
+
+css beamCursor() {
+	width: 1px;
+}
+
 templ Editor(nvimResult nvimwrapper.NvimResult) {
 	<div class={ editor() }>
 		for i, line := range nvimResult.Lines {
@@ -48,7 +66,14 @@ templ Editor(nvimResult nvimwrapper.NvimResult) {
 					<div class={ textSpan(), hl(nvimResult.Hl[span.HlId]) }>{ span.Text }</div>
 				}
 				if i == nvimResult.Row() {
-					<div class={ "cursor", cursorOffset(nvimResult.Col()) }></div>
+					<div
+						class={
+							cursor(),
+							cursorOffset(nvimResult.Col()),
+							templ.KV(blockCursor(), nvimResult.Mode != "insert"),
+							templ.KV(beamCursor(), nvimResult.Mode == "insert"),
+						}
+					></div>
 				}
 			</div>
 		}

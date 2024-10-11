@@ -27,26 +27,8 @@
   --color-mantle: #181825;
   --color-crust: #11111b;
             }
-        .cursor {
-            position: absolute;
-            min-width: 1ch;
-            min-height: 100%;
-            top: 0;
-            background-color: var(--color-text);
-            mix-blend-mode: luminosity;
-            animation: blinkCursor 1.5s steps(2, start) infinite;
-            pointer-events: none;
-        }
 
-        @keyframes blinkCursor {
-
-            0%,
-            50% {
-                opacity: 1;
-            }
-
-            50%,
-            100% {
-                opacity: 0;
-            }
-        }
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}

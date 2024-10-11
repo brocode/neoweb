@@ -34,6 +34,7 @@ type RenderedLine struct {
 
 type NvimResult struct {
 	Hl             map[int]hl.HlAttr
+	Mode           string
 	Lines          []RenderedLine
 	CursorPosition [2]int
 }
@@ -213,6 +214,7 @@ func (n *NvimWrapper) render() (NvimResult, error) {
 		Lines:          lines,
 		CursorPosition: [2]int{n.r.Row, n.r.Col},
 		Hl:             hl,
+		Mode:           n.mode,
 	}, nil
 }
 

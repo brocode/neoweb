@@ -42,9 +42,23 @@ func (hl HlAttr) FontStyle() string {
 	}
 	return "normal"
 }
+func (hl HlAttr) TextDecorationColor() string {
+	if hl.Undercurl && hl.Special != nil {
+		return *hl.Special
+	}
+
+	return "currentcolor"
+}
+func (hl HlAttr) TextDecorationStyle() string {
+	if hl.Undercurl {
+		return "wavy"
+	}
+
+	return "solid"
+}
 func (hl HlAttr) TextDecoration() string {
 	decorations := []string{}
-	if hl.Underline {
+	if hl.Underline || hl.Undercurl {
 		decorations = append(decorations, "underline")
 	}
 

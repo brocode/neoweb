@@ -56,30 +56,7 @@ func (n *NvimWrapper) handleHlAttrDefine(lineData []interface{}) {
 	attr := hl.HlAttr{}
 
 	for key, value := range rawAttrs {
-		switch key {
-		case "background":
-			attr.Background = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
-		case "foreground":
-			attr.Foreground = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
-		case "bold":
-			attr.Bold = value.(bool)
-		case "underline":
-			attr.Underline = value.(bool)
-		case "reverse":
-			attr.Reverse = value.(bool)
-		case "italic":
-			attr.Italic = value.(bool)
-		case "strikethrough":
-			attr.Strikethrough = value.(bool)
-		case "blend":
-			intValue := vimnumbers.ForceInt(value)
-			attr.Blend = &intValue
-		case "special":
-			attr.Special = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
-		case "undercurl":
-			attr.Undercurl = value.(bool)
-
-		}
+		attr.Apply(key, value)
 	}
 
 	n.hl[id] = attr

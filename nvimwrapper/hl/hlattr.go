@@ -3,6 +3,8 @@ package hl
 import (
 	"fmt"
 	"strings"
+
+	"github.com/brocode/neoweb/nvimwrapper/vimnumbers"
 )
 
 type HlAttr struct {
@@ -70,6 +72,33 @@ func (hl HlAttr) TextDecoration() string {
 		return strings.Join(decorations, " ")
 	} else {
 		return "inherit"
+	}
+}
+
+func (hl *HlAttr) Apply(key string, value interface{}) {
+	switch key {
+	case "background":
+		hl.Background = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
+	case "foreground":
+		hl.Foreground = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
+	case "bold":
+		hl.Bold = value.(bool)
+	case "underline":
+		hl.Underline = value.(bool)
+	case "reverse":
+		hl.Reverse = value.(bool)
+	case "italic":
+		hl.Italic = value.(bool)
+	case "strikethrough":
+		hl.Strikethrough = value.(bool)
+	case "blend":
+		intValue := vimnumbers.ForceInt(value)
+		hl.Blend = &intValue
+	case "special":
+		hl.Special = vimnumbers.ConvertToHexColor(vimnumbers.ForceInt(value))
+	case "undercurl":
+		hl.Undercurl = value.(bool)
+
 	}
 }
 

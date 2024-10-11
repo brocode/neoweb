@@ -2,6 +2,13 @@ package raster
 
 import "log/slog"
 
+type BoundingBox struct {
+	Top   int
+	Bot   int
+	Left  int
+	Right int
+}
+
 type Raster struct {
 	raster [][]rune
 	Row    int
@@ -49,4 +56,20 @@ func (r *Raster) Render() []string {
 	}
 
 	return lines
+}
+
+func (r *Raster) ScrollRegion(boundingBox BoundingBox, rowMovement int) {
+	if rowMovement > 0 {
+		for rowIdx := boundingBox.Top + rowMovement; rowIdx < boundingBox.Bot; rowIdx++ {
+			sliceToMove := r.raster[rowIdx][boundingBox.Left : boundingBox.Right-1]
+			destinationSlice := r.raster[rowIdx-rowMovement][boundingBox.Left : boundingBox.Right-1]
+			copy(destinationSlice, sliceToMove)
+		}
+	} else {
+		for rowIdx := boundingBox.Bot + rowMovement - 1; rowIdx >= boundingBox.Top; rowIdx-- {
+			sliceToMove := r.raster[rowIdx][boundingBox.Left : boundingBox.Right-1]
+			destinationSlice := r.raster[rowIdx-rowMovement][boundingBox.Left : boundingBox.Right-1]
+			copy(destinationSlice, sliceToMove)
+		}
+	}
 }

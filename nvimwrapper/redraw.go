@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+
+	"github.com/brocode/neoweb/nvimwrapper/raster"
 )
 
 func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
@@ -27,6 +29,8 @@ func (n *NvimWrapper) handleRedraw(events ...[]interface{}) {
 			switch eventName {
 			case "grid_resize":
 				n.handleResize(tuple)
+			case "grid_scroll":
+				n.handleScroll(tuple)
 			case "grid_cursor_goto":
 				n.handleGoto(tuple)
 			case "grid_line":
@@ -87,11 +91,9 @@ func convertToHexColor(color uint64) *string {
 }
 
 func (n *NvimWrapper) handleGridLine(line_data []interface{}) {
-	// TODO grid id is ignored for now
 	row := line_data[1].(int64)
 	col := line_data[2].(int64)
 
-	slog.Debug("put grid_line", "line", line_data)
 	var buffer bytes.Buffer
 	// cells is an array of arrays each with 1 to 3 items: [text(, hl_id, repeat)]
 	for _, cell := range line_data[3].([]interface{}) {
@@ -102,13 +104,11 @@ func (n *NvimWrapper) handleGridLine(line_data []interface{}) {
 		}
 		buffer.WriteString(text)
 	}
-	slog.Debug("put grid_line interpreted", "row", row, "col", col, "text", buffer.String())
 	n.r.Put(int(row), int(col), []rune(buffer.String()))
 
 }
 func (n *NvimWrapper) handleGoto(update []interface{}) {
 	ia := make([]int, 0, 2)
-	// TODO first element is the grid id, multiple grids are supported
 	for _, v := range update[1:] {
 		ia = append(ia, int(v.(int64)))
 	}
@@ -116,9 +116,19 @@ func (n *NvimWrapper) handleGoto(update []interface{}) {
 }
 func (n *NvimWrapper) handleResize(update []interface{}) {
 	ia := make([]int, 0, 2)
-	// TODO first element is the grid id, multiple grids are supported
 	for _, v := range update[1:] {
 		ia = append(ia, int(v.(int64)))
 	}
 	n.r.Resize(ia[0], ia[1])
+}
+
+func (n *NvimWrapper) handleScroll(update []interface{}) {
+	slog.Debug("scroll grid", "data", update)
+	boundingBox := raster.BoundingBox{
+		Top:   int(update[1].(int64)),
+		Bot:   int(update[2].(int64)),
+		Left:  int(update[3].(int64)),
+		Right: int(update[4].(int64)),
+	}
+	n.r.ScrollRegion(boundingBox, int(update[5].(int64)))
 }

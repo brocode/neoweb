@@ -121,6 +121,15 @@ func (w *NvimWrapper) OpenFile(file string) error {
 	return nil
 }
 
+func (w *NvimWrapper) Paste(input string) error {
+	_, err := w.v.Paste(input, true, -1)
+	if err != nil {
+		return fmt.Errorf("Failed to paste: %w", err)
+	}
+	return nil
+
+}
+
 func (w *NvimWrapper) Input(input string) error {
 	slog.Debug("Send input", "input", input)
 	_, err := w.v.Input(input)

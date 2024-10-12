@@ -14,51 +14,9 @@ templ Main(nvimResult nvimwrapper.NvimResult) {
 			@Editor(nvimResult)
 		</div>
 		<script>
-    // Listen for global keypresses on the entire document
-    document.addEventListener("keydown", function(event) {
-
-        // F keys should stay in the browser. for now
-        if(event.keyCode >= 112 && event.keyCode <= 123) {
-            return
-        }
-        // Modifier keys.
-        if (event.keyCode === 16 || event.keyCode === 17 || event.keyCode === 18 || event.keyCode === 91) {
-            return;
-        }
-
-        event.preventDefault()
-        // Send the keypress information to the server
-        fetch('/keypress', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                key: event.key,
-                keyCode: event.keyCode,
-                shiftKey: event.shiftKey,
-                ctrlKey: event.ctrlKey,
-                altKey: event.altKey,
-                metaKey: event.metaKey
-            })
-        })
-        .then(response => response.text())
-        .then(data => console.debug('Server response:', data))
-        .catch((error) => console.error('Error:', error));
-    });
-</script>
-		<script>
-        const source = new EventSource('/events');
-
-        source.addEventListener('render', function(event) {
-            console.debug(event.data);
-
-            document.getElementById('editor').innerHTML = event.data;
-        });
-
-        source.onerror = function(error) {
-            console.error('Error receiving SSE:', error);
-        };
-    </script>
+            initKeyListener()
+            initEventSource()
+            initPaste()
+        </script>
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -64,6 +65,22 @@ func Run(clean bool) {
 		}
 
 		nvimWrapper.SendKey(keyPress)
+
+	})
+
+	mux.HandleFunc("POST /paste", func(w http.ResponseWriter, r *http.Request) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request", 400)
+			return
+		}
+		text := string(body)
+
+		err = nvimWrapper.Paste(text)
+		if err != nil {
+			http.Error(w, "Failed to paste text", 500)
+			return
+		}
 
 	})
 

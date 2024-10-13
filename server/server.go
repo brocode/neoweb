@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/brocode/neoweb/components"
 	"github.com/brocode/neoweb/key"
@@ -112,11 +113,29 @@ func (s *Server) getEvents(w http.ResponseWriter, r *http.Request) {
 	slog.Info("Events client disconnected")
 }
 
+func cacheWhileServerIsRunning(next http.Handler) http.Handler {
+	startTime := time.Now().Truncate(time.Second)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ifModifiedSince := r.Header.Get("If-Modified-Since")
+		if ifModifiedSince != "" {
+			modTime, err := time.Parse(http.TimeFormat, ifModifiedSince)
+			if err == nil {
+				if !startTime.After(modTime) {
+					w.WriteHeader(http.StatusNotModified)
+					return
+				}
+			}
+		}
+		w.Header().Set("Last-Modified", startTime.UTC().Format(http.TimeFormat))
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (s *Server) Start() {
 
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /static/", http.FileServer(http.FS(staticFs)))
+	mux.Handle("GET /static/", cacheWhileServerIsRunning(http.FileServer(http.FS(staticFs))))
 
 	mux.HandleFunc("GET /", s.getRoot)
 

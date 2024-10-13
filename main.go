@@ -43,5 +43,8 @@ func main() {
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 
-	server.Run(*clean)
+	server := server.NewServer(*clean)
+	defer server.Close()
+
+	server.Start()
 }

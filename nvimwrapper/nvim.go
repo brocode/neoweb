@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"maps"
+	"os"
 	"os/exec"
 	"strings"
 	"sync"
@@ -63,9 +64,25 @@ func (r NvimResult) Col() int {
 	return r.CursorPosition[1]
 }
 
+func forwardEnv() []string {
+
+	forwardVars := []string{"DOCKER_HOST"}
+
+	env := []string{}
+
+	for _, varName := range forwardVars {
+		varValue := os.Getenv(varName)
+		env = append(env, fmt.Sprintf("DOCKER_HOST=%s", varValue))
+	}
+	slog.Info("Spawn with env", "env", env)
+
+	return env
+
+}
+
 func spawnExternal(cmdline string, args []string) (*nvim.Nvim, error) {
 	cmdCtx := exec.CommandContext(context.Background(), cmdline, args...)
-	cmdCtx.Env = []string{}
+	cmdCtx.Env = forwardEnv()
 	cmdCtx.Dir = ""
 
 	inw, err := cmdCtx.StdinPipe()
@@ -78,6 +95,14 @@ func spawnExternal(cmdline string, args []string) (*nvim.Nvim, error) {
 		inw.Close()
 		return nil, err
 	}
+
+	// TODO: log this
+	// errr, err := cmdCtx.StderrPipe()
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//
+	//    go io.Copy(os.Stdout, errr)
 
 	err = cmdCtx.Start()
 	if err != nil {

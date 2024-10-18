@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/brocode/neoweb/components"
 	"github.com/brocode/neoweb/key"
@@ -26,6 +27,10 @@ func NewServer() *Server {
 	nvimWrapper, err := nvimwrapper.Spawn()
 	if err != nil {
 		slog.Error("Failed to spawn neovim", "Error", err)
+
+		// TODO this sleep is so that async stuff can print errors.
+		// Need to remove the entire nvim spawn handling anyway
+		time.Sleep(1 * time.Second)
 		os.Exit(1)
 	}
 

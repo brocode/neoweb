@@ -72,7 +72,7 @@ func forwardEnv() []string {
 
 	for _, varName := range forwardVars {
 		varValue := os.Getenv(varName)
-		env = append(env, fmt.Sprintf("DOCKER_HOST=%s", varValue))
+		env = append(env, fmt.Sprintf("%s=%s", varName, varValue))
 	}
 	slog.Info("Spawn with env", "env", env)
 

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/brocode/neoweb/components"
+	"github.com/brocode/neoweb/config"
 	"github.com/brocode/neoweb/key"
 	"github.com/brocode/neoweb/nvimwrapper"
 	"github.com/brocode/neoweb/server/middleware"
@@ -20,10 +21,11 @@ import (
 var staticFs embed.FS
 
 type Server struct {
-	nw *nvimwrapper.NvimWrapper
+	nw     *nvimwrapper.NvimWrapper
+	config *config.Config
 }
 
-func NewServer() *Server {
+func NewServer(config *config.Config) *Server {
 	nvimWrapper, err := nvimwrapper.Spawn()
 	if err != nil {
 		slog.Error("Failed to spawn neovim", "Error", err)
@@ -41,7 +43,8 @@ func NewServer() *Server {
 	}
 
 	return &Server{
-		nw: nvimWrapper,
+		nw:     nvimWrapper,
+		config: config,
 	}
 }
 
@@ -132,7 +135,7 @@ func (s *Server) Start() {
 
 	mux.HandleFunc("GET /events", s.getEvents)
 
-	addr := ":8080"
+	addr := s.config.Service.ListenAddr
 	slog.Info("Start server", "addr", addr)
 
 	server := &http.Server{

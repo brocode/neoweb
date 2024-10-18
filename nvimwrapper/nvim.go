@@ -87,28 +87,28 @@ func spawnExternal(cmdline string, args []string) (*nvim.Nvim, error) {
 	logger := slog.NewLogLogger(slog.Default().Handler(), slog.LevelInfo)
 	v, _ := nvim.New(outr, inw, inw, logger.Printf)
 
-	go v.Serve()
+	go func() {
+		err := v.Serve()
+		if err != nil {
+			slog.Warn("nvim client Serve failed", "err", err)
+		}
+	}()
+
+	slog.Info("started serving", "cmdline", cmdline, "args", args)
 
 	return v, nil
 }
 
-func Spawn(clean bool) (*NvimWrapper, error) {
+func Spawn() (*NvimWrapper, error) {
 
-	args := []string{"--embed", "--cmd", "set noswapfile"}
-	if clean {
-		args = append(args, "--clean")
-	}
-	v, err := spawnExternal("nvim", args)
+	args := []string{"run", "--rm", "-i", "nvim", "--embed"}
+	v, err := spawnExternal("docker", args)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to start embedded neovim: %w", err)
 	}
 
 	// Set UI dimensions (rows and columns)
 	attachConfig := map[string]interface{}{"ext_linegrid": true}
-	err = v.AttachUI(Cols, Rows, attachConfig)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to attach UI: %w", err)
-	}
 
 	wrapper := NvimWrapper{
 		r:       raster.New[hlRune](),
@@ -124,6 +124,12 @@ func Spawn(clean bool) (*NvimWrapper, error) {
 		return nil, fmt.Errorf("Failed to register handler: %w", err)
 
 	}
+
+	err = v.AttachUI(Cols, Rows, attachConfig)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to attach UI: %w", err)
+	}
+	slog.Info("UI attached successfully")
 
 	return &wrapper, nil
 }

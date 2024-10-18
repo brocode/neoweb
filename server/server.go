@@ -22,8 +22,8 @@ type Server struct {
 	nw *nvimwrapper.NvimWrapper
 }
 
-func NewServer(clean bool) *Server {
-	nvimWrapper, err := nvimwrapper.Spawn(clean)
+func NewServer() *Server {
+	nvimWrapper, err := nvimwrapper.Spawn()
 	if err != nil {
 		slog.Error("Failed to spawn neovim", "Error", err)
 		os.Exit(1)

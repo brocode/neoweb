@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"maps"
+	"os/exec"
 	"strings"
 	"sync"
 
@@ -62,16 +63,42 @@ func (r NvimResult) Col() int {
 	return r.CursorPosition[1]
 }
 
+func spawnExternal(cmdline string, args []string) (*nvim.Nvim, error) {
+	cmdCtx := exec.CommandContext(context.Background(), cmdline, args...)
+	cmdCtx.Env = []string{}
+	cmdCtx.Dir = ""
+
+	inw, err := cmdCtx.StdinPipe()
+	if err != nil {
+		return nil, err
+	}
+
+	outr, err := cmdCtx.StdoutPipe()
+	if err != nil {
+		inw.Close()
+		return nil, err
+	}
+
+	err = cmdCtx.Start()
+	if err != nil {
+		return nil, err
+	}
+
+	logger := slog.NewLogLogger(slog.Default().Handler(), slog.LevelInfo)
+	v, _ := nvim.New(outr, inw, inw, logger.Printf)
+
+	go v.Serve()
+
+	return v, nil
+}
+
 func Spawn(clean bool) (*NvimWrapper, error) {
 
 	args := []string{"--embed", "--cmd", "set noswapfile"}
 	if clean {
 		args = append(args, "--clean")
 	}
-	// Start an embedded Neovim process
-	v, err := nvim.NewChildProcess(
-		nvim.ChildProcessArgs(args...),
-	)
+	v, err := spawnExternal("nvim", args)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to start embedded neovim: %w", err)
 	}
@@ -81,7 +108,6 @@ func Spawn(clean bool) (*NvimWrapper, error) {
 	err = v.AttachUI(Cols, Rows, attachConfig)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to attach UI: %w", err)
-
 	}
 
 	wrapper := NvimWrapper{

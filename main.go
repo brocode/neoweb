@@ -6,17 +6,22 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/brocode/neoweb/config"
 	"github.com/brocode/neoweb/server"
 )
 
 func main() {
-	handlerType := flag.String("log-format", "text", "Log format: text or json")
-	logLevel := flag.String("log-level", "info", "Log level: debug, info, warn, error")
+	configFile := flag.String("config-file", "config.hcl", "Config file location")
+
+	config, err := config.ParseConfig(*configFile)
+	if err != nil {
+		log.Fatalf("Failed to parse config %v", err)
+	}
 
 	flag.Parse()
 
 	var level slog.Level
-	switch *logLevel {
+	switch config.Log.Level {
 	case "debug":
 		level = slog.LevelDebug
 	case "info":
@@ -26,23 +31,23 @@ func main() {
 	case "error":
 		level = slog.LevelError
 	default:
-		log.Fatalf("unknown log level: %s", *logLevel)
+		log.Fatalf("unknown log level: %s", config.Log.Level)
 	}
 
 	var handler slog.Handler
-	switch *handlerType {
+	switch config.Log.Format {
 	case "text":
 		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level})
 	case "json":
 		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: level})
 	default:
-		log.Fatalf("unknown log format: %s", *handlerType)
+		log.Fatalf("unknown log format: %s", config.Log.Format)
 	}
 
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 
-	server := server.NewServer()
+	server := server.NewServer(config)
 	defer server.Close()
 
 	server.Start()

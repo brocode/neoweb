@@ -17,7 +17,7 @@ test:
 
 
 run:
-    go run . -log-level debug
+    go run .
 
 watch:
-    go run github.com/a-h/templ/cmd/templ generate --watch --proxy="http://localhost:8080" --cmd="go run . -log-level debug"
+    go run github.com/a-h/templ/cmd/templ generate --watch --proxy="http://localhost:8080" --cmd="go run ."

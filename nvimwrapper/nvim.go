@@ -1,8 +1,10 @@
 package nvimwrapper
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"maps"
 	"os"
@@ -96,13 +98,11 @@ func spawnExternal(cmdline string, args []string) (*nvim.Nvim, error) {
 		return nil, err
 	}
 
-	// TODO: log this
-	// errr, err := cmdCtx.StderrPipe()
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	//    go io.Copy(os.Stdout, errr)
+	errr, err := cmdCtx.StderrPipe()
+	if err != nil {
+		return nil, err
+	}
+	go logExternalCmdStdErr(errr)
 
 	err = cmdCtx.Start()
 	if err != nil {
@@ -122,6 +122,19 @@ func spawnExternal(cmdline string, args []string) (*nvim.Nvim, error) {
 	slog.Info("started serving", "cmdline", cmdline, "args", args)
 
 	return v, nil
+}
+
+func logExternalCmdStdErr(errr io.Reader) {
+	scanner := bufio.NewScanner(errr)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		slog.Error("External process stderr", "line", line)
+	}
+
+	if scanner.Err() != nil {
+		slog.Error("Reading from external process failed", "err", scanner.Err())
+	}
 }
 
 func Spawn() (*NvimWrapper, error) {

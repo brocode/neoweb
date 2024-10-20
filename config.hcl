@@ -9,6 +9,6 @@ log {
 
 nvim {
     cmd = "docker"
-    args = ["run", "--network", "none", "--rm", "-i", "nvim", "--embed"]
+    args = ["run", "--network", "none", "--memory=40m", "--memory-swap=40m", "--rm", "-i", "nvim", "--embed"]
     forwardEnvVars = ["DOCKER_HOST", "PATH"]
 }

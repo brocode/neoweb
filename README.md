@@ -1,8 +1,21 @@
 # neoweb
 
+## Elevator pitch
+
+Connect neovim to the Browser. 
+TODO: pitch actual features
+
 
 ## Local
 
+It requires a docker container to run
+
 ```bash
-templ generate --watch --proxy="http://localhost:8080" --cmd="go run ."
+just docker-build
+```
+
+
+And then run and watch for template changes.
+```bash
+just watch
 ```

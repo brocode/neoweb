@@ -60,4 +60,6 @@ RUN nvim --headless +"Lazy! sync" \
         zig \
     " \
     +qa
+
+COPY demo.md /home/neovim/demo.md
 ENTRYPOINT [ "/usr/bin/nvim" ]

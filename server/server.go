@@ -36,7 +36,7 @@ func NewServer(config *config.Config) *Server {
 		os.Exit(1)
 	}
 
-	err = nvimWrapper.OpenFile("demo.sh")
+	err = nvimWrapper.OpenFile("demo.md")
 	if err != nil {
 		slog.Error("Failed to open file", "Error", err)
 		os.Exit(1)

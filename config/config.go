@@ -5,8 +5,9 @@ import (
 )
 
 type Config struct {
-	Service ServerConfig `hcl:"server,block"`
-	Log     LogConfig    `hcl:"log,block"`
+	Server ServerConfig `hcl:"server,block"`
+	Log    LogConfig    `hcl:"log,block"`
+	Nvim   NvimConfig   `hcl:"nvim,block"`
 }
 
 type ServerConfig struct {
@@ -15,6 +16,12 @@ type ServerConfig struct {
 type LogConfig struct {
 	Format string `hcl:"format"`
 	Level  string `hcl:"level"`
+}
+
+type NvimConfig struct {
+	Cmd            string   `hcl:"cmd"`
+	Args           []string `hcl:"args"`
+	ForwardEnvVars []string `hcl:"forwardEnvVars"`
 }
 
 func ParseConfig(path string) (*Config, error) {

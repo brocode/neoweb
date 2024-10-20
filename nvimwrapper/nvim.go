@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/brocode/neoweb/config"
 	"github.com/brocode/neoweb/key"
 	"github.com/brocode/neoweb/nvimwrapper/hl"
 	"github.com/brocode/neoweb/nvimwrapper/raster"
@@ -66,9 +67,7 @@ func (r NvimResult) Col() int {
 	return r.CursorPosition[1]
 }
 
-func forwardEnv() []string {
-
-	forwardVars := []string{"DOCKER_HOST"}
+func forwardEnv(forwardVars []string) []string {
 
 	env := []string{}
 
@@ -82,9 +81,9 @@ func forwardEnv() []string {
 
 }
 
-func spawnExternal(cmdline string, args []string) (*nvim.Nvim, error) {
-	cmdCtx := exec.CommandContext(context.Background(), cmdline, args...)
-	cmdCtx.Env = forwardEnv()
+func spawnExternal(config *config.NvimConfig) (*nvim.Nvim, error) {
+	cmdCtx := exec.CommandContext(context.Background(), config.Cmd, config.Args...)
+	cmdCtx.Env = forwardEnv(config.ForwardEnvVars)
 	cmdCtx.Dir = ""
 
 	inw, err := cmdCtx.StdinPipe()
@@ -119,7 +118,7 @@ func spawnExternal(cmdline string, args []string) (*nvim.Nvim, error) {
 		}
 	}()
 
-	slog.Info("started serving", "cmdline", cmdline, "args", args)
+	slog.Info("started serving", "cmdline", config.Cmd, "args", config.Args)
 
 	return v, nil
 }
@@ -137,10 +136,9 @@ func logExternalCmdStdErr(errr io.Reader) {
 	}
 }
 
-func Spawn() (*NvimWrapper, error) {
+func Spawn(config *config.NvimConfig) (*NvimWrapper, error) {
 
-	args := []string{"run", "--rm", "-i", "nvim", "--embed"}
-	v, err := spawnExternal("docker", args)
+	v, err := spawnExternal(config)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to start embedded neovim: %w", err)
 	}

@@ -22,11 +22,11 @@ var staticFs embed.FS
 
 type Server struct {
 	nw     *nvimwrapper.NvimWrapper
-	config *config.Config
+	config *config.ServerConfig
 }
 
 func NewServer(config *config.Config) *Server {
-	nvimWrapper, err := nvimwrapper.Spawn()
+	nvimWrapper, err := nvimwrapper.Spawn(&config.Nvim)
 	if err != nil {
 		slog.Error("Failed to spawn neovim", "Error", err)
 
@@ -44,7 +44,7 @@ func NewServer(config *config.Config) *Server {
 
 	return &Server{
 		nw:     nvimWrapper,
-		config: config,
+		config: &config.Server,
 	}
 }
 
@@ -135,7 +135,7 @@ func (s *Server) Start() {
 
 	mux.HandleFunc("GET /events", s.getEvents)
 
-	addr := s.config.Service.ListenAddr
+	addr := s.config.ListenAddr
 	slog.Info("Start server", "addr", addr)
 
 	server := &http.Server{

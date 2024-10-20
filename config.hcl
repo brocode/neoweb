@@ -7,3 +7,9 @@ log {
     format = "text"
     level = "debug"
 }
+
+nvim {
+    cmd = "docker"
+    args = ["run", "--rm", "-i", "nvim", "--embed"]
+	forwardEnvVars = ["DOCKER_HOST", "PATH"]
+}

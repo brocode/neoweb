@@ -21,7 +21,7 @@ function initKeyListener() {
         event.preventDefault()
 
         // Send the keypress information to the server
-        fetch('/keypress', {
+        fetch('/editor/keypress', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -41,7 +41,7 @@ function initKeyListener() {
 }
 
 function initEventSource() {
-    const source = new EventSource('/events');
+    const source = new EventSource('/editor/events');
 
     source.addEventListener('render', function (event) {
         console.debug(event.data);
@@ -69,7 +69,7 @@ function initPaste() {
 }
 
 function sendPastedText(text) {
-    fetch("/paste", {
+    fetch("/editor/paste", {
         method: "POST",
         headers: {
             "Content-Type": "text/plain"

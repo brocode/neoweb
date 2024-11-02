@@ -4,6 +4,22 @@ css page() {
 	background-color: var(--color-crust);
 }
 
+css layout() {
+	display: grid;
+	grid-template-columns: 200px 1fr;
+	grid-template-rows: 1fr;
+	gap: 10px;
+}
+
+css nav() {
+	color: var(--color-mauve);
+	background-color: var(--color-surface2);
+	border-radius: 5px;
+}
+
+css content() {
+}
+
 templ BasePage() {
 	<!DOCTYPE html>
 	<html>
@@ -12,10 +28,23 @@ templ BasePage() {
 			<link rel="icon" href="/static/favicon.webp"/>
 			<link rel="stylesheet" href="/static/neoweb.css"/>
 			<link rel="stylesheet" href="/static/fonts.css"/>
-			<script type="text/javascript" src="/static/editor.js"></script>
 		</head>
 		<body class={ page() }>
-			{ children... }
+			<div class={ layout() }>
+				<div class={ nav() }>
+					<ul>
+						<li>
+							<a href="/">Management</a>
+						</li>
+						<li>
+							<a href="/editor">Editor</a>
+						</li>
+					</ul>
+				</div>
+				<div class={ content() }>
+					{ children... }
+				</div>
+			</div>
 		</body>
 	</html>
 }

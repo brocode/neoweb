@@ -4,11 +4,13 @@ server {
 
 log {
     format = "text"
-    level = "debug"
+    level = "info"
 }
 
 nvim {
-    cmd = "docker"
-    args = ["run", "--network", "none", "--memory=40m", "--memory-swap=40m", "--cap-drop", "ALL", "--rm", "-i", "nvim", "--embed"]
+    #cmd = "docker"
+    #args = ["run", "-p", "6666:6666", "--memory=100m", "--memory-swap=150m", "--rm", "-i", "nvim", "--embed", "--listen", "127.0.0.1:6666"]
     forwardEnvVars = ["DOCKER_HOST", "PATH"]
+    cmd = "nvim"
+    args = ["--embed", "--listen", "127.0.0.1:6666"]
 }

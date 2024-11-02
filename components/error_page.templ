@@ -1,0 +1,18 @@
+package components
+
+css errorStyle() {
+	font-size: 17px;
+	background-color: var(--color-surface2);
+	color: var(--color-red);
+	min-height: 60vh;
+	padding: 10px;
+	border-radius: 5px;
+}
+
+templ ErrorPage(err string) {
+	@BasePage() {
+		<div class={ errorStyle() }>
+			<p>{ err }</p>
+		</div>
+	}
+}

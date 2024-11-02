@@ -8,8 +8,9 @@ css editorWrapper() {
 	margin-right: auto;
 }
 
-templ Main(nvimResult nvimwrapper.NvimResult) {
+templ EditorPage(nvimResult nvimwrapper.NvimResult) {
 	@BasePage() {
+		<script type="text/javascript" src="/static/editor.js"></script>
 		<div id="editor" class={ editorWrapper() }>
 			@Editor(nvimResult)
 		</div>

@@ -1,0 +1,29 @@
+package components
+
+import (
+	"github.com/brocode/neoweb/config"
+	"strings"
+)
+
+css adminPanel() {
+	font-size: 17px;
+	background-color: var(--color-surface2);
+	color: var(--color-text);
+	min-height: 60vh;
+	padding: 10px;
+	border-radius: 5px;
+}
+
+templ AdminPage(config *config.Config, connected bool) {
+	@BasePage() {
+		<div class={ adminPanel() }>
+			if connected {
+				<p>Connected, try using:</p>
+				<pre>nvim --server localhost:6666 --remote-ui</pre>
+				<button onclick="fetch('/editor/close', { method: 'POST'}).then(() => window.location.reload())">Kill nvim</button>
+			} else {
+				<button title={ config.Nvim.Cmd + " " + strings.Join(config.Nvim.Args, " ") } onclick="fetch('/editor/launch', { method: 'POST'}).then(() => window.location.reload())">Spawn local nvim</button>
+			}
+		</div>
+	}
+}

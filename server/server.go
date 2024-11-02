@@ -22,11 +22,67 @@ var staticFs embed.FS
 
 type Server struct {
 	nw     *nvimwrapper.NvimWrapper
-	config *config.ServerConfig
+	config *config.Config
 }
 
 func NewServer(config *config.Config) *Server {
-	nvimWrapper, err := nvimwrapper.Spawn(&config.Nvim)
+	return &Server{
+		nw:     nil,
+		config: config,
+	}
+}
+
+func (s *Server) Close() {
+	if s.nw != nil {
+		s.nw.Close()
+	}
+}
+
+func (s *Server) getRoot(w http.ResponseWriter, r *http.Request) {
+	err := components.AdminPage(s.config, s.nw != nil).Render(r.Context(), w)
+	if err != nil {
+		slog.Error("Failed to render root", "err", err)
+	}
+}
+
+func (s *Server) getEditor(w http.ResponseWriter, r *http.Request) {
+	if s.nw == nil {
+		err := components.ErrorPage("no nvim connection").Render(r.Context(), w)
+		if err != nil {
+			slog.Error("Failed to render error page", "err", err)
+		}
+		return
+	}
+	result, err := s.nw.Render()
+	if err != nil {
+		slog.Error("Nvim failed", "err", err)
+		http.Error(w, "Nvim failed", 500)
+
+		renderErr := components.ErrorPage("nvim render failed").Render(r.Context(), w)
+		if renderErr != nil {
+			slog.Error("Failed to render error page", "err", renderErr)
+		}
+		return
+	}
+	err = components.EditorPage(result).Render(r.Context(), w)
+	if err != nil {
+		slog.Error("Failed to render response", "error", err)
+	}
+}
+
+func (s *Server) killNvim(_ http.ResponseWriter, _ *http.Request) {
+	if s.nw != nil {
+		s.nw.Close()
+	}
+	s.nw = nil
+}
+
+func (s *Server) launchNvim(_ http.ResponseWriter, _ *http.Request) {
+	if s.nw != nil {
+		slog.Warn("Already connected to nvim, closing first")
+		s.nw.Close()
+	}
+	nvimWrapper, err := nvimwrapper.Spawn(&s.config.Nvim)
 	if err != nil {
 		slog.Error("Failed to spawn neovim", "Error", err)
 
@@ -41,31 +97,13 @@ func NewServer(config *config.Config) *Server {
 		slog.Error("Failed to open file", "Error", err)
 		os.Exit(1)
 	}
-
-	return &Server{
-		nw:     nvimWrapper,
-		config: &config.Server,
-	}
-}
-
-func (s *Server) Close() {
-	s.nw.Close()
-}
-
-func (s *Server) getRoot(w http.ResponseWriter, r *http.Request) {
-	result, err := s.nw.Render()
-	if err != nil {
-		slog.Error("Nvim failed", "err", err)
-		http.Error(w, "Nvim failed", 500)
-		return
-	}
-	err = components.Main(result).Render(r.Context(), w)
-	if err != nil {
-		slog.Error("Failed to render response", "error", err)
-	}
+	s.nw = nvimWrapper
 }
 
 func (s *Server) postKeypress(w http.ResponseWriter, r *http.Request) {
+	if s.nw == nil {
+		slog.Error("Failed to keypress", "reason", "nvim not connected")
+	}
 	var keyPress key.KeyPress
 	err := json.NewDecoder(r.Body).Decode(&keyPress)
 	if err != nil {
@@ -77,6 +115,9 @@ func (s *Server) postKeypress(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) postPaste(w http.ResponseWriter, r *http.Request) {
+	if s.nw == nil {
+		slog.Error("Failed to paste", "reason", "nvim not connected")
+	}
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Failed to read request", 400)
@@ -92,6 +133,9 @@ func (s *Server) postPaste(w http.ResponseWriter, r *http.Request) {
 
 }
 func (s *Server) getEvents(w http.ResponseWriter, r *http.Request) {
+	if s.nw == nil {
+		slog.Error("Failed to get events", "reason", "nvim not connected")
+	}
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
@@ -128,14 +172,18 @@ func (s *Server) Start() {
 	mux.Handle("GET /static/", middleware.CacheWhileServerIsRunning(middleware.GzipMiddleware(http.FileServer(http.FS(staticFs)))))
 
 	mux.Handle("GET /", middleware.GzipMiddleware(http.HandlerFunc(s.getRoot)))
+	mux.Handle("GET /editor", middleware.GzipMiddleware(http.HandlerFunc(s.getEditor)))
 
-	mux.HandleFunc("POST /keypress", s.postKeypress)
+	mux.HandleFunc("POST /editor/launch", s.launchNvim)
+	mux.HandleFunc("POST /editor/close", s.killNvim)
 
-	mux.HandleFunc("POST /paste", s.postPaste)
+	mux.HandleFunc("POST /editor/keypress", s.postKeypress)
 
-	mux.HandleFunc("GET /events", s.getEvents)
+	mux.HandleFunc("POST /editor/paste", s.postPaste)
 
-	addr := s.config.ListenAddr
+	mux.HandleFunc("GET /editor/events", s.getEvents)
+
+	addr := s.config.Server.ListenAddr
 	slog.Info("Start server", "addr", addr)
 
 	server := &http.Server{

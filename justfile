@@ -9,7 +9,7 @@ check:
     golangci-lint run ./...
 
 fmt:
-    templ fmt .
+    go run github.com/a-h/templ/cmd/templ fmt .
     go fmt ./...
 
 test:

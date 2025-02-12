@@ -37,6 +37,9 @@ jobs:
     - name: Tidy
       run: go mod tidy -diff
 
+    - name: cilint
+      run: go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
+
     - name: Check Go Format
       run: |
         fmt_output=$(go fmt ./...)
@@ -45,8 +48,3 @@ jobs:
           echo "$fmt_output"
           exit 1
         fi
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v6
-      with:
-        version: v1.64.2
-
